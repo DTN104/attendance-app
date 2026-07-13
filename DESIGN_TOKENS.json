@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "screen": {
+      "width": 390,
+      "height": 844
+    },
+    "fontFamily": "Inter",
+    "iconLibrary": "Lucide"
+  },
+  "colors": {
+    "primary": "#295CF2",
+    "primarySoft": "#ECF1FF",
+    "background": "#F6F8FC",
+    "surface": "#FFFFFF",
+    "text": "#131C30",
+    "textMuted": "#637087",
+    "textPlaceholder": "#949EB2",
+    "border": "#E0E5F0",
+    "neutralSoft": "#F1F4F9",
+    "success": "#1A9E61",
+    "successSoft": "#E5FAF0",
+    "warning": "#D97706",
+    "warningSoft": "#FFF2E0",
+    "danger": "#DC3545",
+    "dangerSoft": "#FDEBEC"
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 40
+  },
+  "radius": {
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 17,
+    "pill": 999
+  },
+  "typography": {
+    "screenTitle": {
+      "fontSize": 24,
+      "fontWeight": "700",
+      "lineHeight": 32
+    },
+    "formTitle": {
+      "fontSize": 22,
+      "fontWeight": "700",
+      "lineHeight": 30
+    },
+    "sectionTitle": {
+      "fontSize": 18,
+      "fontWeight": "600",
+      "lineHeight": 27
+    },
+    "label": {
+      "fontSize": 14,
+      "fontWeight": "600",
+      "lineHeight": 24
+    },
+    "body": {
+      "fontSize": 13,
+      "fontWeight": "400",
+      "lineHeight": 20
+    },
+    "caption": {
+      "fontSize": 11,
+      "fontWeight": "400",
+      "lineHeight": 17
+    },
+    "button": {
+      "fontSize": 14,
+      "fontWeight": "600",
+      "lineHeight": 22
+    }
+  },
+  "components": {
+    "pagePaddingHorizontal": 24,
+    "buttonHeight": 54,
+    "inputMinHeight": 58,
+    "bottomNavigationHeight": 74,
+    "borderWidth": 1
+  }
+}
