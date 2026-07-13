@@ -1,33 +1,62 @@
 import { Tabs } from 'expo-router';
+import { CalendarDays, ClipboardList, Clock3, House, UserRound } from 'lucide-react-native';
 import React from 'react';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { BottomTabIcon } from '@/components/ui/BottomTabIcon';
+import { colors, typography } from '@/theme/tokens';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarHideOnKeyboard: true,
+        tabBarLabelStyle: {
+          fontFamily: typography.family,
+          fontSize: 11,
+          fontWeight: typography.weights.medium,
+        },
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          paddingTop: 7,
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Tổng quan',
+          tabBarIcon: (props) => <BottomTabIcon icon={House} {...props} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="attendance"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Chấm công',
+          tabBarIcon: (props) => <BottomTabIcon icon={Clock3} {...props} />,
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'Lịch sử',
+          tabBarIcon: (props) => <BottomTabIcon icon={CalendarDays} {...props} />,
+        }}
+      />
+      <Tabs.Screen
+        name="requests"
+        options={{
+          title: 'Đơn từ',
+          tabBarIcon: (props) => <BottomTabIcon icon={ClipboardList} {...props} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Cá nhân',
+          tabBarIcon: (props) => <BottomTabIcon icon={UserRound} {...props} />,
         }}
       />
     </Tabs>
