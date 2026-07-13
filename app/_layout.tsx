@@ -13,6 +13,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: colors.background } }}>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="request-types"
           options={{ animation: 'fade', contentStyle: { backgroundColor: 'transparent' }, presentation: 'transparentModal' }}
