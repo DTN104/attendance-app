@@ -1,5 +1,5 @@
 export type RequestStatus = 'pending' | 'approved' | 'rejected';
-export type RequestTypeId = 'leave' | 'remote' | 'late-early' | 'business' | 'adjustment';
+export type RequestTypeId = 'leave' | 'overtime' | 'business' | 'adjustment';
 
 export type EmployeeRequest = {
   id: string;
@@ -28,12 +28,10 @@ export const employeeRequests: EmployeeRequest[] = [
 ];
 
 export const requestTypes: RequestTypeOption[] = [
-  { id: 'leave', title: 'Đơn nghỉ phép', description: 'Nghỉ phép năm, nghỉ không lương' },
-  { id: 'remote', title: 'Làm việc từ xa', description: 'Đăng ký làm việc ngoài văn phòng' },
-  { id: 'late-early', title: 'Đi muộn / về sớm', description: 'Xin phép thay đổi giờ làm việc' },
-  { id: 'business', title: 'Đơn công tác', description: 'Đăng ký lịch công tác bên ngoài' },
-  { id: 'adjustment', title: 'Điều chỉnh chấm công', description: 'Bổ sung hoặc sửa giờ chấm công' },
+  { id: 'leave', title: 'Xin nghỉ phép', description: 'Dùng phép năm hoặc các loại nghỉ khác' },
+  { id: 'overtime', title: 'Đăng ký tăng ca', description: 'Gửi yêu cầu làm ngoài giờ' },
+  { id: 'business', title: 'Đi công tác', description: 'Tạo lịch và địa điểm công tác' },
+  { id: 'adjustment', title: 'Yêu cầu chỉnh công', description: 'Bổ sung hoặc điều chỉnh check-in/out' },
 ];
 
 export const leaveTypes = ['Nghỉ phép năm', 'Nghỉ không lương', 'Nghỉ ốm'] as const;
-

@@ -12,7 +12,12 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: colors.background } }}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="request-types"
+          options={{ animation: 'fade', contentStyle: { backgroundColor: 'transparent' }, presentation: 'transparentModal' }}
+        />
+      </Stack>
       <StatusBar style="dark" />
     </ThemeProvider>
   );

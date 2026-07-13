@@ -51,7 +51,9 @@ export default function HistoryScreen() {
                 </View>
                 <Text style={styles.worked}>{item.worked}</Text>
               </View>
-              <StatusBadge label={status[item.status].label} variant={status[item.status].variant} />
+              <View>
+                <StatusBadge label={status[item.status].label} variant={status[item.status].variant} />
+              </View>
             </View>
           ))}
         </AppCard>

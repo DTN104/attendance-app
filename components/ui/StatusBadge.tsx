@@ -38,4 +38,3 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.caption,
   },
 });
-
