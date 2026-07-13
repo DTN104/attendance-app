@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { BriefcaseBusiness, MapPin } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
@@ -5,19 +6,33 @@ import { Alert, View } from 'react-native';
 import { AttachmentField, DurationChip, SelectField, SummaryCard, TextAreaField } from '@/components/forms/RequestFormFields';
 import { FormSection, RequestFormLayout } from '@/components/forms/RequestFormLayout';
 import { DatePickerField } from '@/components/ui/DatePickerField';
+import { useRequests } from '@/context/RequestsContext';
 import { spacing } from '@/theme/tokens';
-import { formatShortDate, getInclusiveDayCount } from '@/utils/date';
+import { formatDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
 
 export default function BusinessTripRequestScreen() {
+  const { submitRequest } = useRequests();
   const [fromDate, setFromDate] = useState(() => new Date(2026, 6, 20));
   const [toDate, setToDate] = useState(() => new Date(2026, 6, 22));
   const [purpose, setPurpose] = useState('');
   const duration = getInclusiveDayCount(fromDate, toDate);
+  const submit = () => {
+    const id = submitRequest({
+      type: 'business', title: 'Công tác Hà Nội', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
+      details: [
+        { label: 'Địa điểm', value: 'Hà Nội · Văn phòng ACBS Hà Nội' },
+        { label: 'Thời gian', value: `${formatDate(fromDate)} - ${formatDate(toDate)}` },
+        { label: 'Thời lượng', value: `${duration} ngày` },
+        { label: 'Mục đích công tác', value: purpose.trim() },
+      ],
+    });
+    router.replace({ pathname: '/request-detail', params: { id } });
+  };
 
   return (
     <RequestFormLayout
       onDraft={() => Alert.alert('Đã lưu nháp', 'Đơn công tác đã được lưu bằng dữ liệu mô phỏng.')}
-      onSubmit={() => Alert.alert('Đã gửi đơn', 'Đơn công tác đã được gửi bằng dữ liệu mô phỏng.')}
+      onSubmit={submit}
       submitDisabled={!purpose.trim()}
       subtitle="Đăng ký lịch trình công tác"
       title="Tạo đơn công tác">

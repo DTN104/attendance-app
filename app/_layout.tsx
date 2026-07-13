@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { RequestsProvider } from '@/context/RequestsContext';
 import { colors } from '@/theme/tokens';
 
 export const unstable_settings = {
@@ -11,15 +12,17 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: colors.background } }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="request-types"
-          options={{ animation: 'fade', contentStyle: { backgroundColor: 'transparent' }, presentation: 'transparentModal' }}
-        />
-      </Stack>
-      <StatusBar style="dark" />
-    </ThemeProvider>
+    <RequestsProvider>
+      <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: colors.background } }}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="request-types"
+            options={{ animation: 'fade', contentStyle: { backgroundColor: 'transparent' }, presentation: 'transparentModal' }}
+          />
+        </Stack>
+        <StatusBar style="dark" />
+      </ThemeProvider>
+    </RequestsProvider>
   );
 }

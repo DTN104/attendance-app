@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { CalendarDays, CheckCircle2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
@@ -5,21 +6,35 @@ import { Alert, View } from 'react-native';
 import { AttachmentField, DurationChip, SelectField, SummaryCard, TextAreaField } from '@/components/forms/RequestFormFields';
 import { FormSection, RequestFormLayout } from '@/components/forms/RequestFormLayout';
 import { DatePickerField } from '@/components/ui/DatePickerField';
+import { useRequests } from '@/context/RequestsContext';
 import { spacing } from '@/theme/tokens';
-import { getInclusiveDayCount } from '@/utils/date';
+import { formatDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
 
 const LEAVE_BALANCE = 12;
 
 export default function LeaveRequestScreen() {
+  const { submitRequest } = useRequests();
   const [fromDate, setFromDate] = useState(() => new Date(2026, 6, 15));
   const [toDate, setToDate] = useState(() => new Date(2026, 6, 16));
   const [reason, setReason] = useState('');
   const duration = getInclusiveDayCount(fromDate, toDate);
+  const submit = () => {
+    const id = submitRequest({
+      type: 'leave', title: 'Nghỉ phép năm', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
+      details: [
+        { label: 'Loại nghỉ', value: 'Nghỉ phép năm' },
+        { label: 'Thời gian', value: `${formatDate(fromDate)} - ${formatDate(toDate)}` },
+        { label: 'Thời lượng', value: `${duration} ngày` },
+        { label: 'Lý do', value: reason.trim() },
+      ],
+    });
+    router.replace({ pathname: '/request-detail', params: { id } });
+  };
 
   return (
     <RequestFormLayout
       onDraft={() => Alert.alert('Đã lưu nháp', 'Đơn nghỉ phép đã được lưu bằng dữ liệu mô phỏng.')}
-      onSubmit={() => Alert.alert('Đã gửi đơn', 'Đơn nghỉ phép đã được gửi bằng dữ liệu mô phỏng.')}
+      onSubmit={submit}
       submitDisabled={!reason.trim()}
       subtitle="Điền thông tin để gửi yêu cầu nghỉ phép"
       title="Tạo đơn nghỉ phép">
