@@ -1,9 +1,10 @@
 import { Bell, ChevronRight, CircleHelp, LogOut, ShieldCheck, UserRound } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppCard } from '@/components/ui/AppCard';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { useAuth } from '@/context/AuthContext';
 import { employee } from '@/data/attendance';
 import { ProfileMenuId, profileDetails, profileMenu, profileStats } from '@/data/profile';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
@@ -11,6 +12,8 @@ import { colors, radius, spacing, typography } from '@/theme/tokens';
 const menuIcons = { info: UserRound, notifications: Bell, security: ShieldCheck, help: CircleHelp, logout: LogOut } satisfies Record<ProfileMenuId, typeof UserRound>;
 
 export default function ProfileScreen() {
+  const { signOut } = useAuth();
+
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -44,8 +47,8 @@ export default function ProfileScreen() {
           {profileMenu.map((item, index) => {
             const Icon = menuIcons[item.id];
             const isLogout = item.id === 'logout';
-            return (
-              <View key={item.id} style={[styles.menuItem, index > 0 && styles.border]}>
+            const content = (
+              <>
                 <View style={[styles.menuIcon, isLogout && styles.logoutIcon]}>
                   <Icon color={isLogout ? colors.danger : colors.primary} size={20} />
                 </View>
@@ -54,6 +57,20 @@ export default function ProfileScreen() {
                   {item.description ? <Text style={styles.menuDescription}>{item.description}</Text> : null}
                 </View>
                 {!isLogout ? <ChevronRight color={colors.textSecondary} size={19} /> : null}
+              </>
+            );
+
+            return isLogout ? (
+              <Pressable
+                accessibilityRole="button"
+                key={item.id}
+                onPress={signOut}
+                style={({ pressed }) => [styles.menuItem, index > 0 && styles.border, pressed && styles.pressed]}>
+                {content}
+              </Pressable>
+            ) : (
+              <View key={item.id} style={[styles.menuItem, index > 0 && styles.border]}>
+                {content}
               </View>
             );
           })}
@@ -90,5 +107,6 @@ const styles = StyleSheet.create({
   menuLabel: { color: colors.text, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold },
   logoutText: { color: colors.danger },
   menuDescription: { color: colors.textSecondary, fontSize: typography.sizes.caption, marginTop: spacing.xs },
+  pressed: { opacity: 0.65 },
   version: { color: colors.textSecondary, fontSize: typography.sizes.caption, textAlign: 'center' },
 });
