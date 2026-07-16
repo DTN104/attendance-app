@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock3 } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppCard } from '@/components/ui/AppCard';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { employee } from '@/data/attendance';
 import { AttendanceStatus, attendanceHistory } from '@/data/history';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { formatMonthKey, formatMonthLabel, formatShortDate, formatWeekday, getCalendarMonth, parseIsoDate, shiftMonth } from '@/utils/date';
@@ -27,7 +29,6 @@ const statusColor: Record<AttendanceStatus, string> = {
 };
 
 export default function HistoryScreen() {
-  const [isCalendarOpen, setIsCalendarOpen] = useState(true);
   const [selectedDate, setSelectedDate] = useState<number | null>(13);
   const [visibleMonth, setVisibleMonth] = useState(() => parseIsoDate(attendanceHistory[0].date));
   const monthKey = formatMonthKey(visibleMonth);
@@ -39,13 +40,16 @@ export default function HistoryScreen() {
   const changeMonth = (offset: number) => {
     setVisibleMonth((month) => shiftMonth(month, offset));
     setSelectedDate(null);
-    setIsCalendarOpen(true);
   };
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <ScreenHeader title="Lịch sử chấm công" subtitle="Theo dõi thời gian làm việc của bạn" />
+        <ScreenHeader
+          right={<UserAvatar initials={employee.initials} />}
+          subtitle="Theo dõi giờ làm và trạng thái"
+          title="Lịch sử chấm công"
+        />
 
         <View style={styles.monthPicker}>
           <Pressable
@@ -56,19 +60,7 @@ export default function HistoryScreen() {
             style={({ pressed }) => [styles.monthButton, pressed && styles.pressed]}>
             <ChevronLeft color={colors.textSecondary} size={21} />
           </Pressable>
-          <Pressable
-            accessibilityLabel={`${isCalendarOpen ? 'Ẩn' : 'Hiện'} lịch ${monthLabel}`}
-            accessibilityRole="button"
-            accessibilityState={{ expanded: isCalendarOpen }}
-            onPress={() => setIsCalendarOpen((open) => !open)}
-            style={({ pressed }) => [styles.monthToggle, pressed && styles.pressed]}>
-            <Text style={styles.month}>{monthLabel}</Text>
-            {isCalendarOpen ? (
-              <ChevronUp color={colors.textSecondary} size={17} />
-            ) : (
-              <ChevronDown color={colors.textSecondary} size={17} />
-            )}
-          </Pressable>
+          <Text style={styles.month}>{monthLabel}</Text>
           <Pressable
             accessibilityLabel="Tháng sau"
             accessibilityRole="button"
@@ -79,9 +71,8 @@ export default function HistoryScreen() {
           </Pressable>
         </View>
 
-        {isCalendarOpen ? (
-          <View style={styles.calendar}>
-            <View style={styles.calendarRow}>
+        <View style={styles.calendar}>
+          <View style={styles.calendarRow}>
               {weekdays.map((day) => (
                 <Text key={day} style={styles.weekday}>{day}</Text>
               ))}
@@ -111,36 +102,29 @@ export default function HistoryScreen() {
                   </Pressable>
                 );
               })}
-            </View>
           </View>
-        ) : null}
+        </View>
 
         <Text style={styles.sectionTitle}>Chi tiết gần đây</Text>
         {monthlyHistory.length ? (
-          <AppCard style={styles.listCard}>
-            {monthlyHistory.map((item, index) => {
+          <View style={styles.list}>
+            {monthlyHistory.slice(0, 4).map((item) => {
               const date = parseIsoDate(item.date);
 
               return (
-                <View key={item.id} style={[styles.record, index > 0 && styles.recordBorder]}>
+                <AppCard key={item.id} style={styles.record}>
                   <View style={styles.dateBox}>
-                    <Text style={styles.recordDate}>{formatShortDate(date)}</Text>
-                    <Text style={styles.recordDay}>{formatWeekday(date)}</Text>
+                    <Text style={styles.recordDate}>{date.getDate()}</Text>
                   </View>
                   <View style={styles.recordCopy}>
-                    <View style={styles.timeRow}>
-                      <Clock3 color={colors.textSecondary} size={15} />
-                      <Text style={styles.times}>{item.checkIn} - {item.checkOut}</Text>
-                    </View>
-                    <Text style={styles.worked}>{item.worked}</Text>
+                    <Text style={styles.recordTitle}>{item.id === '13' ? 'Hôm nay' : formatWeekday(date)}, {formatShortDate(date)}</Text>
+                    <Text style={styles.times}>{item.checkIn}  →  {item.checkOut}</Text>
                   </View>
-                  <View>
-                    <StatusBadge label={status[item.status].label} variant={status[item.status].variant} />
-                  </View>
-                </View>
+                  <StatusBadge label={item.worked} variant={status[item.status].variant} />
+                </AppCard>
               );
             })}
-          </AppCard>
+          </View>
         ) : (
           <AppCard style={styles.emptyCard}>
             <Text style={styles.emptyText}>Chưa có dữ liệu chấm công trong tháng này.</Text>
@@ -156,8 +140,7 @@ const styles = StyleSheet.create({
   content: { gap: spacing.xl, padding: spacing.xl, paddingBottom: spacing['3xl'] },
   monthPicker: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, flexDirection: 'row', justifyContent: 'space-between', minHeight: 52 },
   monthButton: { alignItems: 'center', alignSelf: 'stretch', justifyContent: 'center', paddingHorizontal: spacing.lg },
-  monthToggle: { alignItems: 'center', flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: spacing.md },
-  month: { color: colors.text, fontSize: typography.sizes.label, fontWeight: typography.weights.semibold },
+  month: { color: colors.text, fontSize: typography.sizes.sectionTitle, fontWeight: typography.weights.semibold },
   calendar: { marginTop: -spacing.sm },
   calendarRow: { flexDirection: 'row', flexWrap: 'wrap' },
   weekday: { color: colors.textSecondary, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold, marginBottom: spacing.md, textAlign: 'center', width: '14.2857%' },
@@ -169,17 +152,14 @@ const styles = StyleSheet.create({
   dotSlot: { alignItems: 'center', height: spacing.sm, justifyContent: 'center' },
   statusDot: { borderRadius: radius.full, height: 5, width: 5 },
   pressed: { opacity: 0.72 },
-  sectionTitle: { color: colors.text, fontSize: 17, fontWeight: typography.weights.bold },
+  sectionTitle: { color: colors.text, fontSize: typography.sizes.sectionTitle, fontWeight: typography.weights.bold },
   emptyCard: { alignItems: 'center' },
   emptyText: { color: colors.textSecondary, fontSize: typography.sizes.body },
-  listCard: { paddingVertical: 0 },
-  record: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, minHeight: 94 },
-  recordBorder: { borderTopColor: colors.border, borderTopWidth: StyleSheet.hairlineWidth },
-  dateBox: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: radius.md, paddingVertical: spacing.sm, width: 58 },
+  list: { gap: spacing.md },
+  record: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, minHeight: 72, padding: spacing.md },
+  dateBox: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: radius.full, height: 44, justifyContent: 'center', width: 44 },
   recordDate: { color: colors.primary, fontSize: typography.sizes.label, fontWeight: typography.weights.bold },
-  recordDay: { color: colors.textSecondary, fontSize: 10, marginTop: 2 },
   recordCopy: { flex: 1, gap: spacing.xs },
-  timeRow: { alignItems: 'center', flexDirection: 'row', gap: 6 },
-  times: { color: colors.text, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold },
-  worked: { color: colors.textSecondary, fontSize: typography.sizes.caption },
+  recordTitle: { color: colors.text, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold },
+  times: { color: colors.textSecondary, fontSize: typography.sizes.body },
 });

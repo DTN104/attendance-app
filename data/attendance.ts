@@ -1,28 +1,24 @@
 export const employee = {
-  name: 'Nguyễn Minh Anh',
-  role: 'Nhân viên kinh doanh',
-  initials: 'MA',
+  name: 'Trung Nguyễn',
+  preferredName: 'Trung',
+  role: 'Frontend Developer · ACBS',
+  initials: 'TJ',
 };
 
 export const today = {
   label: 'Thứ Hai, 13 tháng 7',
-  time: '08:24',
-  status: 'Đã chấm công',
-  checkIn: '08:02',
+  time: '08:27',
+  status: 'Đã check-in',
+  checkIn: '08:27',
   checkOut: '--:--',
-  workTime: '00 giờ 22 phút',
-  location: 'Văn phòng chính',
-  address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+  workTime: '07 giờ 33 phút',
+  location: 'Trong phạm vi văn phòng',
+  address: 'Văn phòng ACBS · 08:30–17:30',
+  progress: 78,
 };
 
 export const monthlyStats = [
-  { label: 'Ngày công', value: '12/22' },
-  { label: 'Đi muộn', value: '01' },
-  { label: 'Đơn chờ duyệt', value: '02' },
+  { label: 'Ngày công', value: '10.5', detail: '/ 22' },
+  { label: 'Đi muộn', value: '02', detail: 'lần' },
+  { label: 'OT', value: '06.5', detail: 'giờ' },
 ];
-
-export const recentAttendance = [
-  { date: '10/07', day: 'Thứ Sáu', time: '08:01 - 17:32', status: 'Đúng giờ' },
-  { date: '09/07', day: 'Thứ Năm', time: '08:16 - 17:28', status: 'Đi muộn' },
-];
-

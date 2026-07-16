@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "scannedAt": "2026-07-16",
+  "sources": {
+    "package.json": 1783931473,
+    "DESIGN_TOKENS.json": 1783900416,
+    "theme/tokens.ts": 1783932660
+  },
+  "findings": {
+    "fontStack": "System font configured in code; Figma handoff specifies Inter",
+    "fontConflict": true,
+    "palette": "Project tokens in DESIGN_TOKENS.json and theme/tokens.ts",
+    "motion": "react-native-reanimated installed and used",
+    "spacing": "4-point scale",
+    "framework": "Expo 54, React Native 0.81, Expo Router 6, TypeScript"
+  },
+  "preserve": [
+    "React Native StyleSheet",
+    "existing project tokens",
+    "4-point spacing scale",
+    "Lucide icons",
+    "existing Expo and Expo Router stack"
+  ]
+}

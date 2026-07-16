@@ -35,7 +35,7 @@ export default function AdjustmentRequestScreen() {
       onSubmit={submit}
       submitDisabled={!reason.trim()}
       subtitle="Bổ sung hoặc điều chỉnh dữ liệu chấm công"
-      title="Điều chỉnh chấm công">
+      title="Yêu cầu chỉnh công">
       <FormSection label="Loại điều chỉnh">
         <SelectField detail="Thiếu dữ liệu ngày 10/07" icon={RefreshCcw} value="Bổ sung check-out" />
       </FormSection>

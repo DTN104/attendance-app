@@ -22,11 +22,11 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     backgroundColor: colors.primary,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     flexDirection: 'row',
     gap: spacing.sm,
     justifyContent: 'center',
-    minHeight: 52,
+    minHeight: 54,
     paddingHorizontal: spacing.xl,
   },
   pressed: { backgroundColor: colors.primaryDark },
@@ -36,6 +36,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: typography.sizes.label,
     fontWeight: typography.weights.semibold,
+    textTransform: 'uppercase',
   },
 });
-

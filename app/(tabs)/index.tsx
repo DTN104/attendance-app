@@ -1,110 +1,127 @@
-import { Bell, ChevronRight, Clock3 } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { BriefcaseBusiness, CalendarDays, Clock3, FilePenLine } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle } from 'react-native-svg';
 
 import { AppCard } from '@/components/ui/AppCard';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { employee, monthlyStats, recentAttendance, today } from '@/data/attendance';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { employee, monthlyStats, today } from '@/data/attendance';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
+
+const quickActions = [
+  { icon: CalendarDays, label: 'Xin nghỉ', route: '/leave-request' },
+  { icon: Clock3, label: 'Tăng ca', route: '/overtime-request' },
+  { icon: BriefcaseBusiness, label: 'Đi công tác', route: '/business-trip-request' },
+  { icon: FilePenLine, label: 'Chỉnh công', route: '/adjustment-request' },
+] as const satisfies readonly { icon: LucideIcon; label: string; route: string }[];
 
 export default function OverviewScreen() {
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
-          title={`Xin chào, ${employee.name.split(' ').at(-1)}!`}
+          title={`Chào buổi sáng, ${employee.preferredName}`}
           subtitle={today.label}
-          right={
-            <View style={styles.notification}>
-              <Bell color={colors.text} size={21} />
-              <View style={styles.notificationDot} />
-            </View>
-          }
+          right={<UserAvatar initials={employee.initials} />}
         />
 
-        <AppCard style={styles.heroCard}>
+        <View style={styles.heroCard}>
           <View style={styles.heroTop}>
+            <Text style={styles.eyebrow}>TRẠNG THÁI HÔM NAY</Text>
+            <View style={styles.statusChip}><Text style={styles.statusText}>{today.status.toUpperCase()}</Text></View>
+          </View>
+          <View style={styles.heroBody}>
             <View>
-              <Text style={styles.eyebrow}>TRẠNG THÁI HÔM NAY</Text>
-              <StatusBadge label={today.status} />
+              <Text style={styles.checkIn}>{today.checkIn}</Text>
+              <Text style={styles.heroLabel}>Giờ vào ca</Text>
+              <Text style={styles.workTime}>{today.workTime}</Text>
+              <Text style={styles.heroLabel}>Thời gian làm việc</Text>
             </View>
-            <View style={styles.clockIcon}><Clock3 color={colors.primary} size={24} /></View>
+            <ProgressRing progress={today.progress} />
           </View>
-          <View style={styles.times}>
-            <TimeItem label="Giờ vào" value={today.checkIn} />
-            <View style={styles.divider} />
-            <TimeItem label="Giờ ra" value={today.checkOut} />
-            <View style={styles.divider} />
-            <TimeItem label="Đã làm" value="22 phút" />
-          </View>
-        </AppCard>
+        </View>
 
-        <Text style={styles.sectionTitle}>Tổng quan tháng này</Text>
+        <Text style={styles.sectionTitle}>Tổng quan tháng 7</Text>
         <View style={styles.stats}>
           {monthlyStats.map((item) => (
             <AppCard key={item.label} style={styles.statCard}>
-              <Text style={styles.statValue}>{item.value}</Text>
               <Text style={styles.statLabel}>{item.label}</Text>
+              <Text style={styles.statValue}>{item.value}</Text>
+              <Text style={styles.statDetail}>{item.detail}</Text>
             </AppCard>
           ))}
         </View>
 
-        <View style={styles.sectionHeading}>
-          <Text style={styles.sectionTitle}>Chấm công gần đây</Text>
-          <Text style={styles.link}>Xem tất cả</Text>
-        </View>
-        <AppCard style={styles.listCard}>
-          {recentAttendance.map((item, index) => (
-            <View key={item.date} style={[styles.row, index > 0 && styles.rowBorder]}>
-              <View style={styles.dateBox}>
-                <Text style={styles.date}>{item.date}</Text>
-                <Text style={styles.day}>{item.day}</Text>
-              </View>
-              <View style={styles.rowCopy}>
-                <Text style={styles.rowTime}>{item.time}</Text>
-                <StatusBadge label={item.status} variant={item.status === 'Đi muộn' ? 'warning' : 'success'} />
-              </View>
-              <ChevronRight color={colors.textSecondary} size={20} />
-            </View>
+        <Text style={styles.sectionTitle}>Thao tác nhanh</Text>
+        <View style={styles.actions}>
+          {quickActions.map(({ icon: Icon, label, route }) => (
+            <Pressable
+              accessibilityRole="button"
+              key={label}
+              onPress={() => router.push(route)}
+              style={({ pressed }) => [styles.action, pressed && styles.pressed]}>
+              <View style={styles.actionIcon}><Icon color={colors.text} size={23} /></View>
+              <Text style={styles.actionLabel}>{label}</Text>
+            </Pressable>
           ))}
-        </AppCard>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function TimeItem({ label, value }: { label: string; value: string }) {
-  return <View style={styles.timeItem}><Text style={styles.timeLabel}>{label}</Text><Text style={styles.timeValue}>{value}</Text></View>;
+function ProgressRing({ progress }: { progress: number }) {
+  const radiusValue = 27;
+  const circumference = 2 * Math.PI * radiusValue;
+
+  return (
+    <View style={styles.progress}>
+      <Svg height={68} style={styles.progressSvg} viewBox="0 0 68 68" width={68}>
+        <Circle cx="34" cy="34" fill="none" r={radiusValue} stroke={colors.primaryRing} strokeWidth="8" />
+        <Circle
+          cx="34"
+          cy="34"
+          fill="none"
+          r={radiusValue}
+          stroke={colors.surface}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={circumference * (1 - progress / 100)}
+          strokeLinecap="round"
+          strokeWidth="8"
+        />
+      </Svg>
+      <Text style={styles.progressText}>{progress}%</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   safeArea: { backgroundColor: colors.background, flex: 1 },
   content: { gap: spacing.xl, padding: spacing.xl, paddingBottom: spacing['3xl'] },
-  notification: { alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.full, height: 44, justifyContent: 'center', width: 44 },
-  notificationDot: { backgroundColor: colors.danger, borderColor: colors.surface, borderRadius: radius.full, borderWidth: 2, height: 9, position: 'absolute', right: 10, top: 9, width: 9 },
-  heroCard: { gap: spacing.xl },
-  heroTop: { flexDirection: 'row', justifyContent: 'space-between' },
-  eyebrow: { color: colors.textSecondary, fontSize: typography.sizes.caption, fontWeight: typography.weights.semibold, marginBottom: spacing.sm },
-  clockIcon: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: radius.md, height: 48, justifyContent: 'center', width: 48 },
-  times: { flexDirection: 'row' },
-  timeItem: { alignItems: 'center', flex: 1 },
-  timeLabel: { color: colors.textSecondary, fontSize: typography.sizes.caption, marginBottom: spacing.xs },
-  timeValue: { color: colors.text, fontSize: 17, fontWeight: typography.weights.bold },
-  divider: { backgroundColor: colors.border, width: StyleSheet.hairlineWidth },
-  sectionTitle: { color: colors.text, fontSize: 17, fontWeight: typography.weights.bold },
+  heroCard: { backgroundColor: colors.primary, borderRadius: radius.xl, gap: spacing.xl, padding: spacing.xl },
+  heroTop: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+  eyebrow: { color: colors.avatarSurface, fontSize: typography.sizes.caption, fontWeight: typography.weights.semibold },
+  statusChip: { backgroundColor: colors.primaryRing, borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: 6 },
+  statusText: { color: colors.surface, fontSize: typography.sizes.caption, fontWeight: typography.weights.semibold },
+  heroBody: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+  checkIn: { color: colors.surface, fontSize: 44, fontWeight: typography.weights.bold, letterSpacing: -1.5, lineHeight: 50 },
+  heroLabel: { color: colors.avatarSurface, fontSize: typography.sizes.body, lineHeight: typography.lineHeights.body },
+  workTime: { color: colors.surface, fontSize: typography.sizes.sectionTitle, fontWeight: typography.weights.bold, marginTop: spacing.sm },
+  progress: { alignItems: 'center', height: 68, justifyContent: 'center', width: 68 },
+  progressSvg: { position: 'absolute', transform: [{ rotate: '-90deg' }] },
+  progressText: { color: colors.surface, fontSize: typography.sizes.label, fontWeight: typography.weights.bold },
+  sectionTitle: { color: colors.text, fontSize: typography.sizes.sectionTitle, fontWeight: typography.weights.bold },
   stats: { flexDirection: 'row', gap: spacing.sm },
-  statCard: { flex: 1, padding: spacing.md },
-  statValue: { color: colors.primary, fontSize: typography.sizes.title, fontWeight: typography.weights.bold },
-  statLabel: { color: colors.textSecondary, fontSize: 11, lineHeight: 16, marginTop: spacing.xs },
-  sectionHeading: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginBottom: -spacing.sm },
-  link: { color: colors.primary, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold },
-  listCard: { paddingVertical: 0 },
-  row: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, minHeight: 88 },
-  rowBorder: { borderTopColor: colors.border, borderTopWidth: StyleSheet.hairlineWidth },
-  dateBox: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: radius.md, padding: spacing.sm, width: 58 },
-  date: { color: colors.primary, fontSize: typography.sizes.label, fontWeight: typography.weights.bold },
-  day: { color: colors.textSecondary, fontSize: 10, marginTop: 2 },
-  rowCopy: { flex: 1, gap: 6 },
-  rowTime: { color: colors.text, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold },
+  statCard: { flex: 1, minHeight: 104, padding: spacing.md },
+  statValue: { color: colors.text, fontSize: typography.sizes.title, fontWeight: typography.weights.bold, marginTop: spacing.md },
+  statLabel: { color: colors.textSecondary, fontSize: typography.sizes.caption },
+  statDetail: { color: colors.textSecondary, fontSize: typography.sizes.caption, marginTop: spacing.xs },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  action: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.lg, borderWidth: 1, flexBasis: '46%', flexDirection: 'row', flexGrow: 1, gap: spacing.md, minHeight: 62, minWidth: 150, paddingHorizontal: spacing.md },
+  actionIcon: { alignItems: 'center', backgroundColor: colors.primarySoft, borderRadius: radius.md, height: 42, justifyContent: 'center', width: 42 },
+  actionLabel: { color: colors.text, flexShrink: 1, fontSize: typography.sizes.label, fontWeight: typography.weights.semibold },
+  pressed: { opacity: 0.68 },
 });

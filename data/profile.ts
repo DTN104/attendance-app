@@ -6,21 +6,15 @@ export type ProfileMenuItem = {
   description?: string;
 };
 
-export const profileStats = [
-  { label: 'Ngày phép còn lại', value: '10' },
-  { label: 'Ngày công tháng', value: '12' },
-] as const;
-
 export const profileDetails = [
-  { label: 'Mã nhân viên', value: 'NV-0248' },
-  { label: 'Phòng ban', value: 'Kinh doanh' },
-  { label: 'Email', value: 'minhanh@company.vn' },
+  { label: 'Phòng ban', value: 'Khối Công nghệ' },
+  { label: 'Quản lý trực tiếp', value: 'Nguyễn Minh Anh' },
 ] as const;
 
 export const profileMenu: ProfileMenuItem[] = [
-  { id: 'info', label: 'Thông tin cá nhân', description: 'Cập nhật hồ sơ của bạn' },
-  { id: 'notifications', label: 'Thông báo', description: 'Cài đặt thông báo ứng dụng' },
-  { id: 'security', label: 'Bảo mật', description: 'Mật khẩu và thiết bị' },
-  { id: 'help', label: 'Trợ giúp & hỗ trợ' },
+  { id: 'info', label: 'Thông tin cá nhân' },
+  { id: 'notifications', label: 'Thông báo' },
+  { id: 'security', label: 'Bảo mật & thiết bị' },
+  { id: 'help', label: 'Trợ giúp' },
   { id: 'logout', label: 'Đăng xuất' },
 ];

@@ -1,9 +1,15 @@
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5
+ * genre: modern-minimal · macrostructure: Workbench · theme: Cobalt / Figma-locked
+ * tone: utilitarian-soft · anchor hue: cobalt · contrast: pass · mobile: pass
+ */
 import { Platform } from 'react-native';
 
 export const colors = {
   primary: '#295CF2',
   primaryDark: '#1F49C9',
   primarySoft: '#ECF1FF',
+  primaryRing: '#4D84FF',
+  avatarSurface: '#D4DEFF',
   background: '#F6F8FC',
   surface: '#FFFFFF',
   text: '#131C30',
@@ -17,6 +23,8 @@ export const colors = {
   warningSoft: '#FFF2E0',
   danger: '#DC3545',
   dangerSoft: '#FDEBEC',
+  mapSurface: '#E4F1F5',
+  mapRule: '#C7DEE4',
   overlay: 'rgba(19, 28, 48, 0.35)',
   white: '#FFFFFF',
 } as const;

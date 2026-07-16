@@ -37,7 +37,7 @@ export default function OvertimeRequestScreen() {
       onSubmit={submit}
       submitDisabled={!content.trim() || duration <= 0}
       subtitle="Đăng ký thời gian làm việc ngoài giờ"
-      title="Tạo đơn tăng ca">
+      title="Đăng ký tăng ca">
       <FormSection label="Loại tăng ca">
         <SelectField detail="Hệ số 150%" icon={Clock3} value="Tăng ca ngày thường" />
       </FormSection>
@@ -47,7 +47,7 @@ export default function OvertimeRequestScreen() {
           <DatePickerField label="Ngày tăng ca" onChange={setDate} value={date} />
           <TimeRangePickerField fromValue={fromTime} label="Khung giờ" onChangeFrom={setFromTime} onChangeTo={setToTime} toValue={toTime} />
         </View>
-        <DurationChip label={`${formatHours(duration)} giờ tăng ca`} />
+        <DurationChip label={`${formatHours(duration)} giờ`} />
       </FormSection>
 
       <FormSection hint="Bắt buộc" label="Nội dung công việc">

@@ -17,11 +17,14 @@ export default function TabLayout() {
           fontFamily: typography.family,
           fontSize: 11,
           fontWeight: typography.weights.medium,
+          lineHeight: 17,
         },
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          paddingTop: 7,
+          height: 74,
+          paddingBottom: 8,
+          paddingTop: 12,
         },
       }}>
       <Tabs.Screen

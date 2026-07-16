@@ -35,7 +35,7 @@ export default function BusinessTripRequestScreen() {
       onSubmit={submit}
       submitDisabled={!purpose.trim()}
       subtitle="Đăng ký lịch trình công tác"
-      title="Tạo đơn công tác">
+      title="Đăng ký đi công tác">
       <FormSection label="Địa điểm công tác">
         <SelectField detail="Văn phòng ACBS Hà Nội" icon={MapPin} value="Hà Nội" />
       </FormSection>
@@ -45,7 +45,7 @@ export default function BusinessTripRequestScreen() {
           <DatePickerField label="Từ ngày" onChange={(date) => { setFromDate(date); if (date > toDate) setToDate(date); }} value={fromDate} />
           <DatePickerField label="Đến ngày" minimumDate={fromDate} onChange={setToDate} value={toDate} />
         </View>
-        <DurationChip label={`${duration} ngày công tác`} />
+        <DurationChip label={`${duration} ngày`} />
       </FormSection>
 
       <FormSection hint="Bắt buộc" label="Mục đích công tác">

@@ -10,10 +10,10 @@ export type AttendanceRecord = {
 };
 
 export const attendanceHistory: AttendanceRecord[] = [
-  { id: '13', date: '2026-07-13', checkIn: '08:02', checkOut: '--:--', worked: 'Đang làm', status: 'on-time' },
-  { id: '10', date: '2026-07-10', checkIn: '08:01', checkOut: '17:32', worked: '8 giờ 31 phút', status: 'on-time' },
-  { id: '9', date: '2026-07-09', checkIn: '08:16', checkOut: '17:28', worked: '8 giờ 12 phút', status: 'late' },
-  { id: '8', date: '2026-07-08', checkIn: '08:05', checkOut: '17:42', worked: '8 giờ 37 phút', status: 'on-time' },
+  { id: '13', date: '2026-07-13', checkIn: '08:27', checkOut: '--:--', worked: 'Đang làm', status: 'on-time' },
+  { id: '10', date: '2026-07-10', checkIn: '08:41', checkOut: '17:36', worked: 'Đi muộn', status: 'late' },
+  { id: '9', date: '2026-07-09', checkIn: '08:24', checkOut: '17:42', worked: 'Đủ công', status: 'on-time' },
+  { id: '8', date: '2026-07-08', checkIn: '08:35', checkOut: '17:55', worked: 'Đủ công', status: 'on-time' },
   { id: '7', date: '2026-07-07', checkIn: '07:58', checkOut: '17:35', worked: '8 giờ 37 phút', status: 'on-time' },
   { id: '6', date: '2026-07-06', checkIn: '08:04', checkOut: '17:31', worked: '8 giờ 27 phút', status: 'on-time' },
   { id: '3', date: '2026-07-03', checkIn: '08:11', checkOut: '17:29', worked: '8 giờ 18 phút', status: 'late' },

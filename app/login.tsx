@@ -143,8 +143,8 @@ function LoginField({ error, icon: Icon, label, trailing, ...inputProps }: Login
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   safeArea: { backgroundColor: colors.background, flex: 1 },
-  scrollContent: { alignItems: 'center', flexGrow: 1, justifyContent: 'center', paddingVertical: spacing.xl },
-  content: { gap: spacing['2xl'], maxWidth: 440, paddingHorizontal: spacing.xl, width: '100%' },
+  scrollContent: { alignItems: 'center', flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.xl },
+  content: { alignSelf: 'stretch', gap: spacing['2xl'], maxWidth: 440 },
   brand: { alignItems: 'center', gap: spacing.md },
   brandMark: {
     alignItems: 'center',
@@ -152,10 +152,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     height: 72,
     justifyContent: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { height: 8, width: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
     width: 72,
   },
   brandName: { color: colors.primary, fontSize: typography.sizes.label, fontWeight: typography.weights.bold },
@@ -182,11 +178,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: spacing.lg,
     padding: spacing.xl,
-    shadowColor: colors.text,
-    shadowOffset: { height: 6, width: 0 },
-    shadowOpacity: 0.05,
-    shadowRadius: 18,
-    elevation: 2,
   },
   fieldGroup: { gap: spacing.sm },
   label: {
