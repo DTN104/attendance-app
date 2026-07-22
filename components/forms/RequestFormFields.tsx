@@ -1,8 +1,12 @@
-import { ChevronDown, Paperclip } from 'lucide-react-native';
+import * as DocumentPicker from 'expo-document-picker';
+import { ChevronDown, FileCheck2, Paperclip } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { uploadAttachment } from '@/services/attachments';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { formatAttachmentSize, getAttachmentSizeError } from '@/utils/attachment';
 
 export function SelectField({ icon: Icon, value, detail, onPress }: { icon: LucideIcon; value: string; detail?: string; onPress?: () => void }) {
   return (
@@ -35,13 +39,59 @@ export function TextAreaField({ value, onChangeText, placeholder, maxLength = 30
   );
 }
 
-export function AttachmentField({ onPress }: { onPress: () => void }) {
+export function AttachmentField() {
+  const [attachment, setAttachment] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
+
+  const pickAttachment = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        copyToCacheDirectory: true,
+        type: ['image/png', 'image/jpeg', 'application/pdf'],
+      });
+
+      if (result.canceled) return;
+
+      const nextAttachment = result.assets[0];
+      const error = getAttachmentSizeError(nextAttachment.size);
+      if (error) return Alert.alert('Không thể đính kèm', error);
+
+      setAttachment(nextAttachment);
+      setIsUploaded(false);
+      setIsUploading(true);
+      await uploadAttachment(nextAttachment);
+      setIsUploaded(true);
+    } catch (error) {
+      setAttachment(null);
+      Alert.alert('Không thể tải tệp', error instanceof Error ? error.message : 'Vui lòng thử lại.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const Icon = isUploaded ? FileCheck2 : Paperclip;
+  const detail = isUploading
+    ? 'Đang tải lên MinIO...'
+    : isUploaded && attachment
+      ? `${formatAttachmentSize(attachment.size)} · Đã tải lên`
+      : 'PNG, JPG hoặc PDF · Tối đa 10 MB';
+
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.attachment, pressed && styles.pressed]}>
-      <View style={[styles.iconTile, styles.attachmentIcon]}><Paperclip color={colors.textSecondary} size={23} /></View>
+    <Pressable
+      accessibilityLabel={isUploaded && attachment ? `Đã tải lên ${attachment.name}. Chạm để thay đổi` : 'Chọn tệp đính kèm'}
+      accessibilityRole="button"
+      disabled={isUploading}
+      onPress={pickAttachment}
+      style={({ pressed }) => [styles.attachment, isUploaded && styles.attachmentSelected, pressed && styles.pressed]}>
+      <View style={[styles.iconTile, styles.attachmentIcon, isUploaded && styles.attachmentIconSelected]}>
+        {isUploading
+          ? <ActivityIndicator color={colors.primary} size="small" />
+          : <Icon color={isUploaded ? colors.success : colors.textSecondary} size={23} />}
+      </View>
       <View style={styles.selectCopy}>
-        <Text style={styles.selectValue}>Thêm hình ảnh hoặc tài liệu</Text>
-        <Text style={styles.selectDetail}>PNG, JPG hoặc PDF · Tối đa 10 MB</Text>
+        <Text numberOfLines={1} style={styles.selectValue}>{attachment?.name ?? 'Thêm hình ảnh hoặc tài liệu'}</Text>
+        <Text style={styles.selectDetail}>{detail}</Text>
       </View>
     </Pressable>
   );
@@ -85,6 +135,8 @@ const styles = StyleSheet.create({
   counter: { bottom: spacing.md, color: colors.textSecondary, fontSize: typography.sizes.caption, position: 'absolute', right: spacing.lg },
   attachment: { alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.lg, borderStyle: 'dashed', borderWidth: 1, flexDirection: 'row', gap: spacing.md, minHeight: 66, padding: spacing.md },
   attachmentIcon: { backgroundColor: colors.neutralSoft },
+  attachmentIconSelected: { backgroundColor: colors.successSoft },
+  attachmentSelected: { borderColor: colors.success, borderStyle: 'solid' },
   summary: { alignItems: 'center', borderRadius: radius.lg, flexDirection: 'row', gap: spacing.md, minHeight: 70, padding: spacing.lg },
   summaryCopy: { flex: 1 },
   summaryTitle: { color: colors.textSecondary, fontSize: typography.sizes.body },

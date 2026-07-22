@@ -55,7 +55,7 @@ export default function LeaveRequestScreen() {
       </FormSection>
 
       <FormSection hint="Không bắt buộc" label="Đính kèm">
-        <AttachmentField onPress={() => Alert.alert('Tệp đính kèm', 'Chức năng chọn tệp sẽ được kết nối ở giai đoạn sau.')} />
+        <AttachmentField />
       </FormSection>
 
       <SummaryCard

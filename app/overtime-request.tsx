@@ -55,7 +55,7 @@ export default function OvertimeRequestScreen() {
       </FormSection>
 
       <FormSection hint="Không bắt buộc" label="Đính kèm">
-        <AttachmentField onPress={() => Alert.alert('Tệp đính kèm', 'Chức năng chọn tệp sẽ được kết nối ở giai đoạn sau.')} />
+        <AttachmentField />
       </FormSection>
 
       <SummaryCard detail={`6.5 giờ + ${formatHours(duration)} giờ`} icon={Clock3} title="Tổng giờ OT tháng 7" tone="primary" value={`${formatHours(6.5 + duration)} giờ`} />

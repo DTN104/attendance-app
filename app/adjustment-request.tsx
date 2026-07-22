@@ -53,7 +53,7 @@ export default function AdjustmentRequestScreen() {
       </FormSection>
 
       <FormSection hint="Không bắt buộc" label="Minh chứng">
-        <AttachmentField onPress={() => Alert.alert('Tệp đính kèm', 'Chức năng chọn tệp sẽ được kết nối ở giai đoạn sau.')} />
+        <AttachmentField />
       </FormSection>
 
       <SummaryCard detail={formatShortDate(date)} icon={RefreshCcw} title="Dữ liệu hiện tại" tone="warning" value="08:41 → --:--" />
