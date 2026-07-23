@@ -9,6 +9,10 @@ export function formatShortDate(date: Date) {
   return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
 }
 
+export function formatIsoDate(date: Date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export function formatMonthLabel(date: Date) {
   return `Tháng ${pad(date.getMonth() + 1)} / ${date.getFullYear()}`;
 }

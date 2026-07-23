@@ -8,7 +8,7 @@ import { DatePickerField, TimeRangePickerField } from '@/components/ui/DatePicke
 import { useRequestActions } from '@/hooks/use-request-actions';
 import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
-import { formatDate, formatHours, formatShortDate, formatTime, getHourDuration } from '@/utils/date';
+import { formatDate, formatHours, formatIsoDate, formatShortDate, formatTime, getHourDuration } from '@/utils/date';
 
 export default function OvertimeRequestScreen() {
   const [date, setDate] = useState(() => new Date(2026, 6, 18));
@@ -19,6 +19,7 @@ export default function OvertimeRequestScreen() {
   const duration = getHourDuration(fromTime, toTime);
   const request = {
     type: 'overtime' as const, title: 'Tăng ca ngày thường', period: `${formatShortDate(date)} · ${formatTime(fromTime)} - ${formatTime(toTime)}`,
+    payload: { overtimeType: 'weekday', date: formatIsoDate(date), startTime: formatTime(fromTime), endTime: formatTime(toTime), workContent: content.trim() },
     details: [
       { label: 'Loại tăng ca', value: 'Tăng ca ngày thường' },
       { label: 'Ngày tăng ca', value: formatDate(date) },

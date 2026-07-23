@@ -8,7 +8,7 @@ import { DatePickerField } from '@/components/ui/DatePickerField';
 import { useRequestActions } from '@/hooks/use-request-actions';
 import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
-import { formatDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
+import { formatDate, formatIsoDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
 
 const LEAVE_BALANCE = 12;
 
@@ -20,6 +20,7 @@ export default function LeaveRequestScreen() {
   const duration = getInclusiveDayCount(fromDate, toDate);
   const request = {
     type: 'leave' as const, title: 'Nghỉ phép năm', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
+    payload: { leaveType: 'annual', startDate: formatIsoDate(fromDate), endDate: formatIsoDate(toDate), reason: reason.trim() },
     details: [
       { label: 'Loại nghỉ', value: 'Nghỉ phép năm' },
       { label: 'Thời gian', value: `${formatDate(fromDate)} - ${formatDate(toDate)}` },

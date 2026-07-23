@@ -1,0 +1,133 @@
+import type {
+  EmployeeRequest,
+  NewEmployeeRequest,
+  RequestDetail,
+  RequestPayload,
+  RequestStatus,
+  RequestTypeId,
+} from '@/data/requests';
+import type { LocalAttachment } from '@/services/attachments';
+import { apiRequest } from '@/services/api';
+
+export type ApiRequestRecord = {
+  attachmentId: string | null;
+  createdAt: string;
+  id: string;
+  localAttachment: Omit<LocalAttachment, 'uri'> | null;
+  payload: RequestPayload;
+  status: RequestStatus;
+  submittedAt: string | null;
+  type: RequestTypeId;
+  updatedAt: string;
+};
+
+export async function createRequestDraft(accessToken: string, request: NewEmployeeRequest) {
+  return apiRequest<ApiRequestRecord>('/requests', {
+    accessToken,
+    body: JSON.stringify({
+      type: request.type,
+      payload: request.payload,
+      localAttachment: request.attachment
+        ? {
+            name: request.attachment.name,
+            mimeType: request.attachment.mimeType,
+            size: request.attachment.size,
+          }
+        : null,
+    }),
+    method: 'POST',
+  });
+}
+
+export async function listRequestRecords(accessToken: string) {
+  const result = await apiRequest<{ items: ApiRequestRecord[] }>('/requests', { accessToken });
+  return result.items;
+}
+
+export function submitRequestDraft(
+  accessToken: string,
+  requestId: string,
+  attachmentIds: string[],
+) {
+  return apiRequest<ApiRequestRecord>(`/requests/${requestId}/submit`, {
+    accessToken,
+    body: JSON.stringify({ attachmentIds }),
+    headers: { 'Idempotency-Key': `${requestId}-${Date.now()}-${Math.random().toString(36).slice(2)}` },
+    method: 'POST',
+  });
+}
+
+export function toEmployeeRequest(
+  record: ApiRequestRecord,
+  localAttachment?: LocalAttachment,
+): EmployeeRequest {
+  const display = requestDisplay(record.type, record.payload);
+  const timestamp = record.submittedAt ?? record.updatedAt;
+  return {
+    ...display,
+    attachment: localAttachment ?? (record.localAttachment ? { ...record.localAttachment } : undefined),
+    id: record.id,
+    payload: record.payload,
+    status: record.status,
+    submittedAt: `${record.status === 'draft' ? 'Lưu nháp' : 'Tạo'} ngày ${new Date(timestamp).toLocaleDateString('vi-VN')}`,
+    type: record.type,
+  };
+}
+
+function requestDisplay(type: RequestTypeId, payload: RequestPayload) {
+  if (type === 'leave') {
+    const title = payload.leaveType === 'annual' ? 'Nghỉ phép năm' : 'Đơn nghỉ phép';
+    return {
+      title,
+      period: `${date(payload.startDate)} - ${date(payload.endDate)}`,
+      details: [
+        detail('Loại nghỉ', title),
+        detail('Thời gian', `${date(payload.startDate)} - ${date(payload.endDate)}`),
+        detail('Lý do', payload.reason),
+      ],
+    };
+  }
+  if (type === 'overtime') {
+    return {
+      title: 'Tăng ca ngày thường',
+      period: `${date(payload.date)} · ${payload.startTime ?? ''} - ${payload.endTime ?? ''}`,
+      details: [
+        detail('Loại tăng ca', 'Tăng ca ngày thường'),
+        detail('Ngày tăng ca', date(payload.date)),
+        detail('Khung giờ', `${payload.startTime ?? ''} - ${payload.endTime ?? ''}`),
+        detail('Nội dung công việc', payload.workContent),
+      ],
+    };
+  }
+  if (type === 'business') {
+    return {
+      title: `Công tác ${payload.location ?? ''}`.trim(),
+      period: `${date(payload.startDate)} - ${date(payload.endDate)}`,
+      details: [
+        detail('Địa điểm', payload.location),
+        detail('Thời gian', `${date(payload.startDate)} - ${date(payload.endDate)}`),
+        detail('Mục đích công tác', payload.purpose),
+      ],
+    };
+  }
+  return {
+    title: 'Bổ sung check-out',
+    period: `${date(payload.date)} · Check-out ${payload.proposedTime ?? ''}`,
+    details: [
+      detail('Loại điều chỉnh', 'Bổ sung check-out'),
+      detail('Ngày điều chỉnh', date(payload.date)),
+      detail('Giờ đề nghị', payload.proposedTime),
+      detail('Lý do', payload.reason),
+    ],
+  };
+}
+
+function detail(label: string, value?: string): RequestDetail {
+  return { label, value: value ?? '' };
+}
+
+function date(value?: string) {
+  if (!value) return '';
+  const [year, month, day] = value.split('-');
+  return day && month && year ? `${day}/${month}/${year}` : value;
+}

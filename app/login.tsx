@@ -2,6 +2,7 @@ import { Clock3, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck } from 'lucide-reac
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
+  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -23,12 +24,21 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<LoginErrors>({});
+  const [isSigningIn, setIsSigningIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const nextErrors = validateLogin(email, password);
     setErrors(nextErrors);
-    if (!nextErrors.email && !nextErrors.password) signIn();
+    if (nextErrors.email || nextErrors.password) return;
+    setIsSigningIn(true);
+    try {
+      await signIn(email.trim(), password);
+    } catch (error) {
+      Alert.alert('Không thể đăng nhập', error instanceof Error ? error.message : 'Vui lòng thử lại.');
+    } finally {
+      setIsSigningIn(false);
+    }
   };
 
   return (
@@ -100,7 +110,7 @@ export default function LoginScreen() {
                 }
               />
 
-              <PrimaryButton label="ĐĂNG NHẬP" onPress={handleSubmit} />
+              <PrimaryButton disabled={isSigningIn} label={isSigningIn ? 'ĐANG ĐĂNG NHẬP' : 'ĐĂNG NHẬP'} onPress={handleSubmit} />
             </View>
 
             <View style={styles.securityNote}>

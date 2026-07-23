@@ -8,7 +8,7 @@ import { DatePickerField } from '@/components/ui/DatePickerField';
 import { useRequestActions } from '@/hooks/use-request-actions';
 import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
-import { formatDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
+import { formatDate, formatIsoDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
 
 export default function BusinessTripRequestScreen() {
   const [fromDate, setFromDate] = useState(() => new Date(2026, 6, 20));
@@ -18,6 +18,7 @@ export default function BusinessTripRequestScreen() {
   const duration = getInclusiveDayCount(fromDate, toDate);
   const request = {
     type: 'business' as const, title: 'Công tác Hà Nội', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
+    payload: { location: 'Hà Nội', startDate: formatIsoDate(fromDate), endDate: formatIsoDate(toDate), purpose: purpose.trim() },
     details: [
       { label: 'Địa điểm', value: 'Hà Nội · Văn phòng ACBS Hà Nội' },
       { label: 'Thời gian', value: `${formatDate(fromDate)} - ${formatDate(toDate)}` },

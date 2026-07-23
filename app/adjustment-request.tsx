@@ -8,7 +8,7 @@ import { DatePickerField, TimePickerField } from '@/components/ui/DatePickerFiel
 import { useRequestActions } from '@/hooks/use-request-actions';
 import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
-import { formatDate, formatShortDate, formatTime } from '@/utils/date';
+import { formatDate, formatIsoDate, formatShortDate, formatTime } from '@/utils/date';
 
 export default function AdjustmentRequestScreen() {
   const [date, setDate] = useState(() => new Date(2026, 6, 10));
@@ -17,6 +17,7 @@ export default function AdjustmentRequestScreen() {
   const [attachment, setAttachment] = useState<LocalAttachment | null>(null);
   const request = {
     type: 'adjustment' as const, title: 'Bổ sung check-out', period: `${formatShortDate(date)} · Check-out ${formatTime(time)}`,
+    payload: { adjustmentType: 'add_check_out', date: formatIsoDate(date), proposedTime: formatTime(time), reason: reason.trim() },
     details: [
       { label: 'Loại điều chỉnh', value: 'Bổ sung check-out' },
       { label: 'Ngày điều chỉnh', value: formatDate(date) },

@@ -1,5 +1,6 @@
 export type RequestStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type RequestTypeId = 'leave' | 'overtime' | 'business' | 'adjustment';
+export type RequestPayload = Record<string, string>;
 
 export type EmployeeRequest = {
   attachment?: {
@@ -13,13 +14,16 @@ export type EmployeeRequest = {
   type: RequestTypeId;
   title: string;
   period: string;
+  payload?: RequestPayload;
   submittedAt: string;
   status: RequestStatus;
   details: RequestDetail[];
 };
 
 export type RequestDetail = { label: string; value: string };
-export type NewEmployeeRequest = Pick<EmployeeRequest, 'attachment' | 'type' | 'title' | 'period' | 'details'>;
+export type NewEmployeeRequest = Pick<EmployeeRequest, 'attachment' | 'type' | 'title' | 'period' | 'details'> & {
+  payload: RequestPayload;
+};
 
 export type RequestTypeOption = {
   id: RequestTypeId;

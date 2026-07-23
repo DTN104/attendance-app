@@ -10,7 +10,6 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useRequests } from '@/context/RequestsContext';
 import type { RequestStatus, RequestTypeId } from '@/data/requests';
-import { submitWithAttachment } from '@/services/attachments';
 import type { LocalAttachment } from '@/services/attachments';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
@@ -42,7 +41,7 @@ export default function RequestDetailScreen() {
 
     setIsSubmitting(true);
     try {
-      await submitWithAttachment(localAttachment, (uploaded) => submitDraft(request.id, uploaded ?? request.attachment));
+      await submitDraft(request.id, localAttachment);
     } catch (error) {
       Alert.alert('Không thể gửi đơn', error instanceof Error ? error.message : 'Vui lòng thử lại.');
     } finally {
