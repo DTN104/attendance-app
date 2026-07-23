@@ -1,4 +1,4 @@
-import { apiRequest } from '@/services/api';
+import { apiRequest } from './api.ts';
 
 type PresignResponse = {
   attachmentId: string;

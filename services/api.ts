@@ -6,12 +6,17 @@ type ApiErrorBody = {
 };
 
 export class ApiError extends Error {
+  readonly code: string;
+  readonly status: number;
+
   constructor(
     message: string,
-    readonly code = 'NETWORK_ERROR',
-    readonly status = 0,
+    code = 'NETWORK_ERROR',
+    status = 0,
   ) {
     super(message);
+    this.code = code;
+    this.status = status;
   }
 }
 
