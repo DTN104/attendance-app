@@ -8,6 +8,7 @@ import { formatDate } from '@/utils/date';
 type RequestsContextValue = {
   requests: EmployeeRequest[];
   saveDraft: (request: NewEmployeeRequest) => string;
+  submitDraft: (id: string, attachment?: EmployeeRequest['attachment']) => void;
   submitRequest: (request: NewEmployeeRequest) => string;
 };
 
@@ -24,10 +25,15 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
   };
 
   const saveDraft = (request: NewEmployeeRequest) => storeRequest(request, 'draft');
+  const submitDraft = (id: string, attachment?: EmployeeRequest['attachment']) => {
+    setRequests((current) => current.map((request) => request.id === id && request.status === 'draft'
+      ? { ...request, attachment, status: 'pending', submittedAt: `Tạo ngày ${formatDate(new Date())}` }
+      : request));
+  };
   const submitRequest = (request: NewEmployeeRequest) => storeRequest(request, 'pending');
 
   // ponytail: dữ liệu chỉ sống trong phiên; thay provider này bằng API khi cần lưu bền và xét duyệt thật.
-  return <RequestsContext.Provider value={{ requests, saveDraft, submitRequest }}>{children}</RequestsContext.Provider>;
+  return <RequestsContext.Provider value={{ requests, saveDraft, submitDraft, submitRequest }}>{children}</RequestsContext.Provider>;
 }
 
 export function useRequests() {

@@ -2,7 +2,13 @@ export type RequestStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type RequestTypeId = 'leave' | 'overtime' | 'business' | 'adjustment';
 
 export type EmployeeRequest = {
-  attachment?: { name: string; objectKey?: string };
+  attachment?: {
+    mimeType?: string;
+    name: string;
+    objectKey?: string;
+    size?: number;
+    uri?: string;
+  };
   id: string;
   type: RequestTypeId;
   title: string;

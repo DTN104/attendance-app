@@ -12,7 +12,7 @@ export function useRequestActions(request: NewEmployeeRequest, attachment: Local
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const save = () => {
-    saveDraft({ ...request, attachment: attachment ? { name: attachment.name } : undefined });
+    saveDraft({ ...request, attachment: attachment ?? undefined });
     router.replace('/requests');
   };
 
