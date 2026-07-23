@@ -2,10 +2,11 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
-type Variant = 'success' | 'warning' | 'danger';
+type Variant = 'neutral' | 'success' | 'warning' | 'danger';
 type Props = { label: string; variant?: Variant };
 
 const palette = {
+  neutral: { backgroundColor: colors.neutralSoft, color: colors.textSecondary },
   success: { backgroundColor: colors.successSoft, color: colors.success },
   warning: { backgroundColor: colors.warningSoft, color: colors.warning },
   danger: { backgroundColor: colors.dangerSoft, color: colors.danger },

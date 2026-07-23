@@ -1,12 +1,22 @@
-import type { DocumentPickerAsset } from 'expo-document-picker';
-
 type PresignResponse = {
   error?: string;
   objectKey?: string;
   uploadUrl?: string;
 };
 
-export async function uploadAttachment(attachment: DocumentPickerAsset) {
+export type LocalAttachment = {
+  mimeType?: string;
+  name: string;
+  size?: number;
+  uri: string;
+};
+
+export type UploadedAttachment = {
+  name: string;
+  objectKey: string;
+};
+
+export async function uploadAttachment(attachment: LocalAttachment): Promise<UploadedAttachment> {
   const apiUrl = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
   if (!apiUrl) throw new Error('Thiếu EXPO_PUBLIC_API_URL trong .env.local.');
 
@@ -35,5 +45,14 @@ export async function uploadAttachment(attachment: DocumentPickerAsset) {
   });
   if (!uploadResponse.ok) throw new Error('MinIO từ chối tải tệp.');
 
-  return { objectKey: presign.objectKey };
+  return { name: attachment.name, objectKey: presign.objectKey };
+}
+
+export async function submitWithAttachment<T>(
+  attachment: LocalAttachment | null,
+  submit: (uploaded?: UploadedAttachment) => T,
+  upload = uploadAttachment,
+) {
+  const uploaded = attachment ? await upload(attachment) : undefined;
+  return submit(uploaded);
 }

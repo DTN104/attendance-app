@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft, Send } from 'lucide-react-native';
 import { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
@@ -13,10 +13,11 @@ type Props = {
   children: ReactNode;
   onDraft: () => void;
   onSubmit: () => void;
+  submitting?: boolean;
   submitDisabled?: boolean;
 };
 
-export function RequestFormLayout({ title, subtitle, children, onDraft, onSubmit, submitDisabled }: Props) {
+export function RequestFormLayout({ title, subtitle, children, onDraft, onSubmit, submitting, submitDisabled }: Props) {
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
@@ -27,12 +28,12 @@ export function RequestFormLayout({ title, subtitle, children, onDraft, onSubmit
           {children}
         </ScrollView>
         <View style={styles.actions}>
-          <Pressable accessibilityRole="button" onPress={onDraft} style={({ pressed }) => [styles.draftButton, pressed && styles.pressed]}>
+          <Pressable accessibilityRole="button" disabled={submitting} onPress={onDraft} style={({ pressed }) => [styles.draftButton, pressed && styles.pressed, submitting && styles.disabled]}>
             <Text style={styles.draftText}>LƯU NHÁP</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" disabled={submitDisabled} onPress={onSubmit} style={({ pressed }) => [styles.submitButton, pressed && styles.submitPressed, submitDisabled && styles.disabled]}>
-            <Send color={colors.white} size={21} />
-            <Text style={styles.submitText}>GỬI ĐƠN</Text>
+          <Pressable accessibilityRole="button" disabled={submitDisabled || submitting} onPress={onSubmit} style={({ pressed }) => [styles.submitButton, pressed && styles.submitPressed, (submitDisabled || submitting) && styles.disabled]}>
+            {submitting ? <ActivityIndicator color={colors.white} size="small" /> : <Send color={colors.white} size={21} />}
+            <Text style={styles.submitText}>{submitting ? 'ĐANG GỬI' : 'GỬI ĐƠN'}</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>

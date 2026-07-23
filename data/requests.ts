@@ -1,7 +1,8 @@
-export type RequestStatus = 'pending' | 'approved' | 'rejected';
+export type RequestStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type RequestTypeId = 'leave' | 'overtime' | 'business' | 'adjustment';
 
 export type EmployeeRequest = {
+  attachment?: { name: string; objectKey?: string };
   id: string;
   type: RequestTypeId;
   title: string;
@@ -12,7 +13,7 @@ export type EmployeeRequest = {
 };
 
 export type RequestDetail = { label: string; value: string };
-export type NewEmployeeRequest = Pick<EmployeeRequest, 'type' | 'title' | 'period' | 'details'>;
+export type NewEmployeeRequest = Pick<EmployeeRequest, 'attachment' | 'type' | 'title' | 'period' | 'details'>;
 
 export type RequestTypeOption = {
   id: RequestTypeId;

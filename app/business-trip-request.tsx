@@ -1,38 +1,37 @@
-import { router } from 'expo-router';
 import { BriefcaseBusiness, MapPin } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AttachmentField, DurationChip, SelectField, SummaryCard, TextAreaField } from '@/components/forms/RequestFormFields';
 import { FormSection, RequestFormLayout } from '@/components/forms/RequestFormLayout';
 import { DatePickerField } from '@/components/ui/DatePickerField';
-import { useRequests } from '@/context/RequestsContext';
+import { useRequestActions } from '@/hooks/use-request-actions';
+import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
 import { formatDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
 
 export default function BusinessTripRequestScreen() {
-  const { submitRequest } = useRequests();
   const [fromDate, setFromDate] = useState(() => new Date(2026, 6, 20));
   const [toDate, setToDate] = useState(() => new Date(2026, 6, 22));
   const [purpose, setPurpose] = useState('');
+  const [attachment, setAttachment] = useState<LocalAttachment | null>(null);
   const duration = getInclusiveDayCount(fromDate, toDate);
-  const submit = () => {
-    const id = submitRequest({
-      type: 'business', title: 'Công tác Hà Nội', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
-      details: [
-        { label: 'Địa điểm', value: 'Hà Nội · Văn phòng ACBS Hà Nội' },
-        { label: 'Thời gian', value: `${formatDate(fromDate)} - ${formatDate(toDate)}` },
-        { label: 'Thời lượng', value: `${duration} ngày` },
-        { label: 'Mục đích công tác', value: purpose.trim() },
-      ],
-    });
-    router.replace({ pathname: '/request-detail', params: { id } });
+  const request = {
+    type: 'business' as const, title: 'Công tác Hà Nội', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
+    details: [
+      { label: 'Địa điểm', value: 'Hà Nội · Văn phòng ACBS Hà Nội' },
+      { label: 'Thời gian', value: `${formatDate(fromDate)} - ${formatDate(toDate)}` },
+      { label: 'Thời lượng', value: `${duration} ngày` },
+      { label: 'Mục đích công tác', value: purpose.trim() },
+    ],
   };
+  const { isSubmitting, save, submit } = useRequestActions(request, attachment);
 
   return (
     <RequestFormLayout
-      onDraft={() => Alert.alert('Đã lưu nháp', 'Đơn công tác đã được lưu bằng dữ liệu mô phỏng.')}
+      onDraft={save}
       onSubmit={submit}
+      submitting={isSubmitting}
       submitDisabled={!purpose.trim()}
       subtitle="Đăng ký lịch trình công tác"
       title="Đăng ký đi công tác">
@@ -53,7 +52,7 @@ export default function BusinessTripRequestScreen() {
       </FormSection>
 
       <FormSection hint="Không bắt buộc" label="Đính kèm">
-        <AttachmentField />
+        <AttachmentField attachment={attachment} disabled={isSubmitting} onChange={setAttachment} />
       </FormSection>
 
       <SummaryCard

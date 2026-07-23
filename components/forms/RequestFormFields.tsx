@@ -1,10 +1,9 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { ChevronDown, FileCheck2, Paperclip } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { uploadAttachment } from '@/services/attachments';
+import type { LocalAttachment } from '@/services/attachments';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { formatAttachmentSize, getAttachmentSizeError } from '@/utils/attachment';
 
@@ -39,11 +38,15 @@ export function TextAreaField({ value, onChangeText, placeholder, maxLength = 30
   );
 }
 
-export function AttachmentField() {
-  const [attachment, setAttachment] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isUploaded, setIsUploaded] = useState(false);
-
+export function AttachmentField({
+  attachment,
+  disabled,
+  onChange,
+}: {
+  attachment: LocalAttachment | null;
+  disabled?: boolean;
+  onChange: (attachment: LocalAttachment) => void;
+}) {
   const pickAttachment = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -57,37 +60,24 @@ export function AttachmentField() {
       const error = getAttachmentSizeError(nextAttachment.size);
       if (error) return Alert.alert('Không thể đính kèm', error);
 
-      setAttachment(nextAttachment);
-      setIsUploaded(false);
-      setIsUploading(true);
-      await uploadAttachment(nextAttachment);
-      setIsUploaded(true);
+      onChange(nextAttachment);
     } catch (error) {
-      setAttachment(null);
-      Alert.alert('Không thể tải tệp', error instanceof Error ? error.message : 'Vui lòng thử lại.');
-    } finally {
-      setIsUploading(false);
+      Alert.alert('Không thể chọn tệp', error instanceof Error ? error.message : 'Vui lòng thử lại.');
     }
   };
 
-  const Icon = isUploaded ? FileCheck2 : Paperclip;
-  const detail = isUploading
-    ? 'Đang tải lên MinIO...'
-    : isUploaded && attachment
-      ? `${formatAttachmentSize(attachment.size)} · Đã tải lên`
-      : 'PNG, JPG hoặc PDF · Tối đa 10 MB';
+  const Icon = attachment ? FileCheck2 : Paperclip;
+  const detail = attachment ? `${formatAttachmentSize(attachment.size)} · Sẵn sàng gửi` : 'PNG, JPG hoặc PDF · Tối đa 10 MB';
 
   return (
     <Pressable
-      accessibilityLabel={isUploaded && attachment ? `Đã tải lên ${attachment.name}. Chạm để thay đổi` : 'Chọn tệp đính kèm'}
+      accessibilityLabel={attachment ? `Đã chọn ${attachment.name}. Chạm để thay đổi` : 'Chọn tệp đính kèm'}
       accessibilityRole="button"
-      disabled={isUploading}
+      disabled={disabled}
       onPress={pickAttachment}
-      style={({ pressed }) => [styles.attachment, isUploaded && styles.attachmentSelected, pressed && styles.pressed]}>
-      <View style={[styles.iconTile, styles.attachmentIcon, isUploaded && styles.attachmentIconSelected]}>
-        {isUploading
-          ? <ActivityIndicator color={colors.primary} size="small" />
-          : <Icon color={isUploaded ? colors.success : colors.textSecondary} size={23} />}
+      style={({ pressed }) => [styles.attachment, attachment && styles.attachmentSelected, pressed && styles.pressed]}>
+      <View style={[styles.iconTile, styles.attachmentIcon, attachment && styles.attachmentIconSelected]}>
+        <Icon color={attachment ? colors.success : colors.textSecondary} size={23} />
       </View>
       <View style={styles.selectCopy}>
         <Text numberOfLines={1} style={styles.selectValue}>{attachment?.name ?? 'Thêm hình ảnh hoặc tài liệu'}</Text>

@@ -14,7 +14,8 @@ import { requestTypes } from '@/data/requests';
 import type { RequestStatus, RequestTypeId } from '@/data/requests';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
-const status: Record<RequestStatus, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
+const status: Record<RequestStatus, { label: string; variant: 'neutral' | 'success' | 'warning' | 'danger' }> = {
+  draft: { label: 'Bản nháp', variant: 'neutral' },
   pending: { label: 'Chờ duyệt', variant: 'warning' },
   approved: { label: 'Đã duyệt', variant: 'success' },
   rejected: { label: 'Từ chối', variant: 'danger' },

@@ -12,7 +12,8 @@ import type { RequestStatus, RequestTypeId } from '@/data/requests';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 const icons = { adjustment: FilePenLine, business: BriefcaseBusiness, leave: CalendarDays, overtime: Clock3 } satisfies Record<RequestTypeId, typeof CalendarDays>;
-const statuses: Record<RequestStatus, { label: string; variant: 'success' | 'warning' | 'danger'; message: string }> = {
+const statuses: Record<RequestStatus, { label: string; variant: 'neutral' | 'success' | 'warning' | 'danger'; message: string }> = {
+  draft: { label: 'Bản nháp', variant: 'neutral', message: 'Chưa gửi đến quản lý trực tiếp' },
   pending: { label: 'Chờ duyệt', variant: 'warning', message: 'Đang chờ quản lý trực tiếp xét duyệt' },
   approved: { label: 'Đã duyệt', variant: 'success', message: 'Yêu cầu đã được quản lý phê duyệt' },
   rejected: { label: 'Từ chối', variant: 'danger', message: 'Yêu cầu chưa được phê duyệt' },
@@ -60,14 +61,20 @@ export default function RequestDetailScreen() {
               <Text style={styles.detailValue}>{detail.value}</Text>
             </View>
           ))}
+          {request.attachment ? (
+            <View style={[styles.detailRow, styles.rowBorder]}>
+              <Text style={styles.detailLabel}>Đính kèm</Text>
+              <Text style={styles.detailValue}>{request.attachment.name}</Text>
+            </View>
+          ) : null}
         </AppCard>
 
-        <Text style={styles.sectionTitle}>Tiến trình xét duyệt</Text>
+        <Text style={styles.sectionTitle}>{request.status === 'draft' ? 'Trạng thái' : 'Tiến trình xét duyệt'}</Text>
         <AppCard style={styles.timeline}>
           <View style={styles.timelineItem}>
             <View style={[styles.timelineIcon, styles.doneIcon]}><CheckCircle2 color={colors.success} size={19} /></View>
             <View style={styles.timelineCopy}>
-              <Text style={styles.timelineTitle}>Đã tạo đơn</Text>
+              <Text style={styles.timelineTitle}>{request.status === 'draft' ? 'Đã lưu nháp' : 'Đã tạo đơn'}</Text>
               <Text style={styles.timelineText}>{request.submittedAt}</Text>
             </View>
           </View>
