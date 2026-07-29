@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, FilePenLine, Send } from 'lucide-react-native';
-import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ArrowLeft, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, FilePenLine } from 'lucide-react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppCard } from '@/components/ui/AppCard';
@@ -9,8 +8,8 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useRequests } from '@/context/RequestsContext';
+import { getRequestRoute } from '@/data/requests';
 import type { RequestStatus, RequestTypeId } from '@/data/requests';
-import type { LocalAttachment } from '@/services/attachments';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
 const icons = { adjustment: FilePenLine, business: BriefcaseBusiness, leave: CalendarDays, overtime: Clock3 } satisfies Record<RequestTypeId, typeof CalendarDays>;
@@ -23,31 +22,8 @@ const statuses: Record<RequestStatus, { label: string; variant: 'neutral' | 'suc
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { requests, submitDraft } = useRequests();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { requests } = useRequests();
   const request = requests.find((item) => item.id === id);
-
-  const sendDraft = async () => {
-    if (!request || request.status !== 'draft') return;
-
-    const localAttachment: LocalAttachment | null = request.attachment?.uri
-      ? {
-          mimeType: request.attachment.mimeType,
-          name: request.attachment.name,
-          size: request.attachment.size,
-          uri: request.attachment.uri,
-        }
-      : null;
-
-    setIsSubmitting(true);
-    try {
-      await submitDraft(request.id, localAttachment);
-    } catch (error) {
-      Alert.alert('Không thể gửi đơn', error instanceof Error ? error.message : 'Vui lòng thử lại.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   if (!request) {
     return (
@@ -63,7 +39,6 @@ export default function RequestDetailScreen() {
 
   const Icon = icons[request.type];
   const status = statuses[request.status];
-  const canSubmitDraft = request.details.every((detail) => detail.value.trim());
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
@@ -116,12 +91,9 @@ export default function RequestDetailScreen() {
 
         {request.status === 'draft' ? (
           <View style={styles.draftActions}>
-            {!canSubmitDraft ? <Text style={styles.draftHint}>Vui lòng hoàn tất các trường bắt buộc trước khi gửi.</Text> : null}
             <PrimaryButton
-              disabled={!canSubmitDraft || isSubmitting}
-              icon={Send}
-              label={isSubmitting ? 'Đang gửi' : 'Gửi đơn'}
-              onPress={sendDraft}
+              label="Tiếp tục chỉnh sửa"
+              onPress={() => router.replace(getRequestRoute(request))}
             />
           </View>
         ) : null}
@@ -164,7 +136,6 @@ const styles = StyleSheet.create({
   timelineText: { color: colors.textSecondary, fontSize: typography.sizes.caption, lineHeight: typography.lineHeights.caption },
   timelineLine: { backgroundColor: colors.border, height: spacing.lg, marginLeft: 18, width: 1 },
   draftActions: { gap: spacing.sm },
-  draftHint: { color: colors.danger, fontSize: typography.sizes.caption, lineHeight: typography.lineHeights.caption, textAlign: 'center' },
   notFound: { flex: 1, gap: spacing.md, justifyContent: 'center', padding: spacing.xl },
   notFoundTitle: { color: colors.text, fontSize: typography.sizes.formTitle, fontWeight: typography.weights.bold, textAlign: 'center' },
   notFoundText: { color: colors.textSecondary, fontSize: typography.sizes.body, marginBottom: spacing.md, textAlign: 'center' },

@@ -1,19 +1,19 @@
 import type {
   EmployeeRequest,
   NewEmployeeRequest,
+  RequestAttachment,
   RequestDetail,
   RequestPayload,
   RequestStatus,
   RequestTypeId,
 } from '@/data/requests';
-import type { LocalAttachment } from '@/services/attachments';
 import { apiRequest } from '@/services/api';
 
 export type ApiRequestRecord = {
   attachmentId: string | null;
   createdAt: string;
   id: string;
-  localAttachment: Omit<LocalAttachment, 'uri'> | null;
+  localAttachment: Omit<RequestAttachment, 'id' | 'objectKey' | 'uri'> | null;
   payload: RequestPayload;
   status: RequestStatus;
   submittedAt: string | null;
@@ -24,18 +24,16 @@ export type ApiRequestRecord = {
 export async function createRequestDraft(accessToken: string, request: NewEmployeeRequest) {
   return apiRequest<ApiRequestRecord>('/requests', {
     accessToken,
-    body: JSON.stringify({
-      type: request.type,
-      payload: request.payload,
-      localAttachment: request.attachment
-        ? {
-            name: request.attachment.name,
-            mimeType: request.attachment.mimeType,
-            size: request.attachment.size,
-          }
-        : null,
-    }),
+    body: JSON.stringify(requestBody(request)),
     method: 'POST',
+  });
+}
+
+export async function updateRequestDraft(accessToken: string, id: string, request: NewEmployeeRequest) {
+  return apiRequest<ApiRequestRecord>(`/requests/${id}`, {
+    accessToken,
+    body: JSON.stringify(requestBody(request)),
+    method: 'PATCH',
   });
 }
 
@@ -59,13 +57,15 @@ export function submitRequestDraft(
 
 export function toEmployeeRequest(
   record: ApiRequestRecord,
-  localAttachment?: LocalAttachment,
+  attachment?: RequestAttachment,
 ): EmployeeRequest {
   const display = requestDisplay(record.type, record.payload);
   const timestamp = record.submittedAt ?? record.updatedAt;
   return {
     ...display,
-    attachment: localAttachment ?? (record.localAttachment ? { ...record.localAttachment } : undefined),
+    attachment: attachment ?? (record.localAttachment
+      ? { ...record.localAttachment, ...(record.attachmentId ? { id: record.attachmentId } : {}) }
+      : undefined),
     id: record.id,
     payload: record.payload,
     status: record.status,
@@ -130,4 +130,19 @@ function date(value?: string) {
   if (!value) return '';
   const [year, month, day] = value.split('-');
   return day && month && year ? `${day}/${month}/${year}` : value;
+}
+
+function requestBody(request: NewEmployeeRequest) {
+  return {
+    attachmentId: request.attachment?.id ?? null,
+    type: request.type,
+    payload: request.payload,
+    localAttachment: request.attachment
+      ? {
+          name: request.attachment.name,
+          mimeType: request.attachment.mimeType,
+          size: request.attachment.size,
+        }
+      : null,
+  };
 }

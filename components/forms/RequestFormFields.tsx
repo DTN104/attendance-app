@@ -3,6 +3,7 @@ import { ChevronDown, FileCheck2, Paperclip } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import type { RequestAttachment } from '@/data/requests';
 import type { LocalAttachment } from '@/services/attachments';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { formatAttachmentSize, getAttachmentSizeError } from '@/utils/attachment';
@@ -43,7 +44,7 @@ export function AttachmentField({
   disabled,
   onChange,
 }: {
-  attachment: LocalAttachment | null;
+  attachment: RequestAttachment | null;
   disabled?: boolean;
   onChange: (attachment: LocalAttachment) => void;
 }) {
@@ -67,7 +68,9 @@ export function AttachmentField({
   };
 
   const Icon = attachment ? FileCheck2 : Paperclip;
-  const detail = attachment ? `${formatAttachmentSize(attachment.size)} · Sẵn sàng gửi` : 'PNG, JPG hoặc PDF · Tối đa 10 MB';
+  const detail = attachment
+    ? `${formatAttachmentSize(attachment.size)} · ${attachment.id ? 'Đã lưu' : 'Sẵn sàng gửi'}`
+    : 'PNG, JPG hoặc PDF · Tối đa 10 MB';
 
   return (
     <Pressable

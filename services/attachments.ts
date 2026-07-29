@@ -1,4 +1,5 @@
 import { apiRequest } from './api.ts';
+import type { RequestAttachment } from '../data/requests.ts';
 
 type PresignResponse = {
   attachmentId: string;
@@ -7,18 +8,30 @@ type PresignResponse = {
   uploadUrl: string;
 };
 
-export type LocalAttachment = {
-  mimeType?: string;
-  name: string;
-  size?: number;
-  uri: string;
-};
+export type LocalAttachment = RequestAttachment & { uri: string };
 
 export type UploadedAttachment = {
   id: string;
   name: string;
   objectKey: string;
 };
+
+export function isLocalAttachment(attachment?: RequestAttachment | null): attachment is LocalAttachment {
+  return Boolean(attachment?.uri);
+}
+
+export function toStoredAttachment(
+  local: LocalAttachment,
+  uploaded: UploadedAttachment,
+): RequestAttachment {
+  return {
+    id: uploaded.id,
+    mimeType: local.mimeType,
+    name: uploaded.name,
+    objectKey: uploaded.objectKey,
+    size: local.size,
+  };
+}
 
 export async function uploadAttachment(
   attachment: LocalAttachment,

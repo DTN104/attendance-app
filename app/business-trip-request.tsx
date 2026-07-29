@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { BriefcaseBusiness, MapPin } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -5,16 +6,20 @@ import { View } from 'react-native';
 import { AttachmentField, DurationChip, SelectField, SummaryCard, TextAreaField } from '@/components/forms/RequestFormFields';
 import { FormSection, RequestFormLayout } from '@/components/forms/RequestFormLayout';
 import { DatePickerField } from '@/components/ui/DatePickerField';
+import { useRequests } from '@/context/RequestsContext';
+import type { RequestAttachment } from '@/data/requests';
 import { useRequestActions } from '@/hooks/use-request-actions';
-import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
-import { formatDate, formatIsoDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
+import { formatDate, formatIsoDate, formatShortDate, getInclusiveDayCount, parseIsoDate } from '@/utils/date';
 
 export default function BusinessTripRequestScreen() {
-  const [fromDate, setFromDate] = useState(() => new Date(2026, 6, 20));
-  const [toDate, setToDate] = useState(() => new Date(2026, 6, 22));
-  const [purpose, setPurpose] = useState('');
-  const [attachment, setAttachment] = useState<LocalAttachment | null>(null);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { requests } = useRequests();
+  const draft = requests.find((item) => item.id === id && item.status === 'draft' && item.type === 'business');
+  const [fromDate, setFromDate] = useState(() => parseIsoDate(draft?.payload?.startDate ?? '2026-07-20'));
+  const [toDate, setToDate] = useState(() => parseIsoDate(draft?.payload?.endDate ?? '2026-07-22'));
+  const [purpose, setPurpose] = useState(draft?.payload?.purpose ?? '');
+  const [attachment, setAttachment] = useState<RequestAttachment | null>(() => draft?.attachment ?? null);
   const duration = getInclusiveDayCount(fromDate, toDate);
   const request = {
     type: 'business' as const, title: 'Công tác Hà Nội', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
@@ -26,7 +31,7 @@ export default function BusinessTripRequestScreen() {
       { label: 'Mục đích công tác', value: purpose.trim() },
     ],
   };
-  const { isSubmitting, save, submit } = useRequestActions(request, attachment);
+  const { isSubmitting, save, submit } = useRequestActions(request, attachment, draft?.id);
 
   return (
     <RequestFormLayout
@@ -35,7 +40,7 @@ export default function BusinessTripRequestScreen() {
       submitting={isSubmitting}
       submitDisabled={!purpose.trim()}
       subtitle="Đăng ký lịch trình công tác"
-      title="Đăng ký đi công tác">
+      title={draft ? 'Chỉnh sửa đơn công tác' : 'Đăng ký đi công tác'}>
       <FormSection label="Địa điểm công tác">
         <SelectField detail="Văn phòng ACBS Hà Nội" icon={MapPin} value="Hà Nội" />
       </FormSection>

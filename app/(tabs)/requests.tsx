@@ -10,7 +10,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useRequests } from '@/context/RequestsContext';
 import { employee } from '@/data/attendance';
-import { requestTypes } from '@/data/requests';
+import { getRequestRoute, requestTypes } from '@/data/requests';
 import type { RequestStatus, RequestTypeId } from '@/data/requests';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
@@ -73,7 +73,7 @@ export default function RequestsScreen() {
         <View style={styles.list}>
           {requests.slice(0, 2).map((item) => {
             return (
-              <Pressable accessibilityRole="button" key={item.id} onPress={() => router.push({ pathname: '/request-detail', params: { id: item.id } })} style={({ pressed }) => pressed && styles.pressed}>
+              <Pressable accessibilityRole="button" key={item.id} onPress={() => router.push(getRequestRoute(item))} style={({ pressed }) => pressed && styles.pressed}>
                 <AppCard style={styles.requestCard}>
                   <View style={styles.requestCopy}>
                     <Text style={styles.requestTitle}>{item.title}</Text>

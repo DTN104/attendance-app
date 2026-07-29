@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { CalendarDays, CheckCircle2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -5,18 +6,22 @@ import { View } from 'react-native';
 import { AttachmentField, DurationChip, SelectField, SummaryCard, TextAreaField } from '@/components/forms/RequestFormFields';
 import { FormSection, RequestFormLayout } from '@/components/forms/RequestFormLayout';
 import { DatePickerField } from '@/components/ui/DatePickerField';
+import { useRequests } from '@/context/RequestsContext';
+import type { RequestAttachment } from '@/data/requests';
 import { useRequestActions } from '@/hooks/use-request-actions';
-import type { LocalAttachment } from '@/services/attachments';
 import { spacing } from '@/theme/tokens';
-import { formatDate, formatIsoDate, formatShortDate, getInclusiveDayCount } from '@/utils/date';
+import { formatDate, formatIsoDate, formatShortDate, getInclusiveDayCount, parseIsoDate } from '@/utils/date';
 
 const LEAVE_BALANCE = 12;
 
 export default function LeaveRequestScreen() {
-  const [fromDate, setFromDate] = useState(() => new Date(2026, 6, 15));
-  const [toDate, setToDate] = useState(() => new Date(2026, 6, 16));
-  const [reason, setReason] = useState('');
-  const [attachment, setAttachment] = useState<LocalAttachment | null>(null);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { requests } = useRequests();
+  const draft = requests.find((item) => item.id === id && item.status === 'draft' && item.type === 'leave');
+  const [fromDate, setFromDate] = useState(() => parseIsoDate(draft?.payload?.startDate ?? '2026-07-15'));
+  const [toDate, setToDate] = useState(() => parseIsoDate(draft?.payload?.endDate ?? '2026-07-16'));
+  const [reason, setReason] = useState(draft?.payload?.reason ?? '');
+  const [attachment, setAttachment] = useState<RequestAttachment | null>(() => draft?.attachment ?? null);
   const duration = getInclusiveDayCount(fromDate, toDate);
   const request = {
     type: 'leave' as const, title: 'Nghỉ phép năm', period: `${formatShortDate(fromDate)} - ${formatShortDate(toDate)}`,
@@ -28,7 +33,7 @@ export default function LeaveRequestScreen() {
       { label: 'Lý do', value: reason.trim() },
     ],
   };
-  const { isSubmitting, save, submit } = useRequestActions(request, attachment);
+  const { isSubmitting, save, submit } = useRequestActions(request, attachment, draft?.id);
 
   return (
     <RequestFormLayout
@@ -37,7 +42,7 @@ export default function LeaveRequestScreen() {
       submitting={isSubmitting}
       submitDisabled={!reason.trim()}
       subtitle="Điền thông tin để gửi yêu cầu nghỉ phép"
-      title="Tạo đơn nghỉ phép">
+      title={draft ? 'Chỉnh sửa đơn nghỉ phép' : 'Tạo đơn nghỉ phép'}>
       <FormSection label="Loại nghỉ">
         <SelectField detail="Còn 12 ngày" icon={CalendarDays} value="Nghỉ phép năm" />
       </FormSection>

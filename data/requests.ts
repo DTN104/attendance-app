@@ -2,14 +2,17 @@ export type RequestStatus = 'draft' | 'pending' | 'approved' | 'rejected';
 export type RequestTypeId = 'leave' | 'overtime' | 'business' | 'adjustment';
 export type RequestPayload = Record<string, string>;
 
+export type RequestAttachment = {
+  id?: string;
+  mimeType?: string;
+  name: string;
+  objectKey?: string;
+  size?: number;
+  uri?: string;
+};
+
 export type EmployeeRequest = {
-  attachment?: {
-    mimeType?: string;
-    name: string;
-    objectKey?: string;
-    size?: number;
-    uri?: string;
-  };
+  attachment?: RequestAttachment;
   id: string;
   type: RequestTypeId;
   title: string;
@@ -67,5 +70,19 @@ export const requestTypes: RequestTypeOption[] = [
   { id: 'business', title: 'Đi công tác', description: 'Tạo lịch và địa điểm công tác' },
   { id: 'adjustment', title: 'Yêu cầu chỉnh công', description: 'Bổ sung hoặc điều chỉnh check-in/out' },
 ];
+
+const requestFormRoutes = {
+  adjustment: '/adjustment-request',
+  business: '/business-trip-request',
+  leave: '/leave-request',
+  overtime: '/overtime-request',
+} as const satisfies Record<RequestTypeId, string>;
+
+export function getRequestRoute(request: Pick<EmployeeRequest, 'id' | 'status' | 'type'>) {
+  return {
+    pathname: request.status === 'draft' ? requestFormRoutes[request.type] : '/request-detail',
+    params: { id: request.id },
+  } as const;
+}
 
 export const leaveTypes = ['Nghỉ phép năm', 'Nghỉ không lương', 'Nghỉ ốm'] as const;
