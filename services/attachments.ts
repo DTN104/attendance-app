@@ -50,14 +50,7 @@ export async function uploadAttachment(
     method: 'POST',
   });
 
-  const localFile = await fetch(attachment.uri);
-  if (!localFile.ok) throw new Error('Không thể đọc tệp đã chọn.');
-
-  const uploadResponse = await fetch(presign.uploadUrl, {
-    body: await localFile.blob(),
-    headers: presign.headers,
-    method: 'PUT',
-  });
+  const uploadResponse = await uploadLocalFile(presign.uploadUrl, presign.headers, attachment);
   if (!uploadResponse.ok) throw new Error('MinIO từ chối tải tệp.');
 
   await apiRequest(`/uploads/${presign.attachmentId}/complete`, {
@@ -67,6 +60,30 @@ export async function uploadAttachment(
   });
 
   return { id: presign.attachmentId, name: attachment.name, objectKey: presign.objectKey };
+}
+
+async function uploadLocalFile(
+  uploadUrl: string,
+  headers: Record<string, string>,
+  attachment: LocalAttachment,
+) {
+  try {
+    if (typeof document !== 'undefined') {
+      const localFile = await fetch(attachment.uri);
+      if (!localFile.ok) throw new Error('Không thể đọc tệp đã chọn.');
+      return fetch(uploadUrl, { body: await localFile.blob(), headers, method: 'PUT' });
+    }
+
+    const [{ File }, { fetch: expoFetch }] = await Promise.all([
+      import('expo-file-system'),
+      import('expo/fetch'),
+    ]);
+    return expoFetch(uploadUrl, { body: new File(attachment.uri), headers, method: 'PUT' });
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? `Không thể tải tệp: ${error.message}` : 'Không thể tải tệp đính kèm.',
+    );
+  }
 }
 
 export async function submitWithAttachment<T>(
