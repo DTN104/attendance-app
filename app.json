@@ -39,7 +39,13 @@
           }
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Cho phép ứng dụng sử dụng vị trí để xác nhận chấm công."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
