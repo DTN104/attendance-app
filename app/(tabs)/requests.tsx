@@ -8,11 +8,12 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useEmployeeData } from '@/context/EmployeeDataContext';
 import { useRequests } from '@/context/RequestsContext';
-import { employee } from '@/data/attendance';
 import { getRequestRoute, requestTypes } from '@/data/requests';
 import type { RequestStatus, RequestTypeId } from '@/data/requests';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { getInitials } from '@/utils/person';
 
 const status: Record<RequestStatus, { label: string; variant: 'neutral' | 'success' | 'warning' | 'danger' }> = {
   draft: { label: 'Bản nháp', variant: 'neutral' },
@@ -33,15 +34,21 @@ const iconTones = {
   leave: colors.successSoft,
   overtime: colors.warningSoft,
 } satisfies Record<RequestTypeId, string>;
+const numberFormatter = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 });
 
 export default function RequestsScreen() {
+  const { profile, requestSummary } = useEmployeeData();
   const { requests } = useRequests();
+  const summaryDescriptions: Partial<Record<RequestTypeId, string>> = requestSummary ? {
+    leave: `${numberFormatter.format(requestSummary.leaveRemaining)} ngày còn lại`,
+    overtime: `Tháng này: ${numberFormatter.format(requestSummary.overtimeHours)} giờ`,
+  } : {};
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
-          right={<UserAvatar initials={employee.initials} />}
+          right={<UserAvatar initials={getInitials(profile?.name)} />}
           subtitle="Tạo và theo dõi các yêu cầu"
           title="Đơn từ"
         />
@@ -60,7 +67,7 @@ export default function RequestsScreen() {
                 <View style={[styles.typeIcon, { backgroundColor: iconTones[item.id] }]}><Icon color={colors.text} size={22} /></View>
                 <View style={styles.typeCopy}>
                   <Text style={styles.typeTitle}>{item.title}</Text>
-                  <Text style={styles.typeDescription}>{item.description}</Text>
+                  <Text style={styles.typeDescription}>{summaryDescriptions[item.id] ?? item.description}</Text>
                 </View>
                 <ChevronRight color={colors.textSecondary} size={20} />
               </Pressable>

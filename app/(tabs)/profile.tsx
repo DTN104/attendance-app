@@ -6,15 +6,22 @@ import { AppCard } from '@/components/ui/AppCard';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useAuth } from '@/context/AuthContext';
-import { employee } from '@/data/attendance';
-import { ProfileMenuId, profileDetails, profileMenu } from '@/data/profile';
+import { useEmployeeData } from '@/context/EmployeeDataContext';
+import { profileMenu } from '@/data/profile';
+import type { ProfileMenuId } from '@/data/profile';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { getInitials } from '@/utils/person';
 
 const menuIcons = { info: UserRound, notifications: Bell, security: ShieldCheck, help: CircleHelp, logout: LogOut } satisfies Record<ProfileMenuId, typeof UserRound>;
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
+  const { profile } = useEmployeeData();
   const settings = profileMenu.filter((item) => item.id !== 'logout');
+  const profileDetails = [
+    { label: 'Phòng ban', value: profile?.department ?? '—' },
+    { label: 'Quản lý trực tiếp', value: profile?.manager?.name ?? '—' },
+  ];
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
@@ -22,10 +29,12 @@ export default function ProfileScreen() {
         <ScreenHeader title="Cá nhân" />
 
         <View style={styles.identity}>
-          <UserAvatar initials={employee.initials} size={100} />
-          <Text style={styles.name}>{employee.name}</Text>
-          <Text style={styles.role}>{employee.role}</Text>
-          <View style={styles.employeeCode}><Text style={styles.employeeCodeText}>Mã NV: ACBS-0248</Text></View>
+          <UserAvatar initials={getInitials(profile?.name)} size={100} />
+          <Text style={styles.name}>{profile?.name ?? 'Đang tải...'}</Text>
+          <Text style={styles.role}>{profile ? `${profile.jobTitle} · ${profile.company}` : '—'}</Text>
+          <View style={styles.employeeCode}>
+            <Text style={styles.employeeCodeText}>Mã NV: {profile?.employeeCode ?? '—'}</Text>
+          </View>
         </View>
 
         <AppCard style={styles.detailsCard}>

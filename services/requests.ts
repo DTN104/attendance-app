@@ -32,7 +32,7 @@ export async function createRequestDraft(accessToken: string, request: NewEmploy
 export async function updateRequestDraft(accessToken: string, id: string, request: NewEmployeeRequest) {
   return apiRequest<ApiRequestRecord>(`/requests/${id}`, {
     accessToken,
-    body: JSON.stringify(requestBody(request)),
+    body: JSON.stringify(updateBody(request)),
     method: 'PATCH',
   });
 }
@@ -50,7 +50,7 @@ export function submitRequestDraft(
   return apiRequest<ApiRequestRecord>(`/requests/${requestId}/submit`, {
     accessToken,
     body: JSON.stringify({ attachmentIds }),
-    headers: { 'Idempotency-Key': `${requestId}-${Date.now()}-${Math.random().toString(36).slice(2)}` },
+    headers: { 'Idempotency-Key': idempotencyKey(requestId) },
     method: 'POST',
   });
 }
@@ -132,9 +132,13 @@ function date(value?: string) {
   return day && month && year ? `${day}/${month}/${year}` : value;
 }
 
+/**
+ * Body cho POST /requests. Theo API_FLOW_SPEC 4.4, endpoint tạo draft chỉ nhận
+ * type, payload và localAttachment; attachmentId chưa tồn tại ở bước này vì
+ * file chỉ được upload sau khi draft có id để làm ownerId.
+ */
 function requestBody(request: NewEmployeeRequest) {
   return {
-    attachmentId: request.attachment?.id ?? null,
     type: request.type,
     payload: request.payload,
     localAttachment: request.attachment
@@ -145,4 +149,22 @@ function requestBody(request: NewEmployeeRequest) {
         }
       : null,
   };
+}
+
+/** Body cho PATCH /requests/:id. Gửi kèm attachmentId; null nghĩa là bỏ file. */
+function updateBody(request: NewEmployeeRequest) {
+  return {
+    ...requestBody(request),
+    attachmentId: request.attachment?.id ?? null,
+  };
+}
+
+/**
+ * Idempotency-Key phải ổn định cho cùng một thao tác submit của người dùng.
+ * Backend scope key theo (employeeId, action, key) và chỉ cache response thành
+ * công, nên key dẫn xuất từ requestId vừa chặn double-submit vừa cho phép thử
+ * lại sau khi submit thất bại vì lỗi nghiệp vụ.
+ */
+function idempotencyKey(requestId: string) {
+  return `submit:${requestId}`;
 }

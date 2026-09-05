@@ -8,8 +8,9 @@ import Svg, { Circle } from 'react-native-svg';
 import { AppCard } from '@/components/ui/AppCard';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { UserAvatar } from '@/components/ui/UserAvatar';
-import { employee, monthlyStats, today } from '@/data/attendance';
+import { useEmployeeData } from '@/context/EmployeeDataContext';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { getInitials, getPreferredName } from '@/utils/person';
 
 const quickActions = [
   { icon: CalendarDays, label: 'Xin nghỉ', route: '/leave-request' },
@@ -18,33 +19,57 @@ const quickActions = [
   { icon: FilePenLine, label: 'Chỉnh công', route: '/adjustment-request' },
 ] as const satisfies readonly { icon: LucideIcon; label: string; route: string }[];
 
+const dateFormatter = new Intl.DateTimeFormat('vi-VN', { day: 'numeric', month: 'long', weekday: 'long' });
+const numberFormatter = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1, minimumIntegerDigits: 2 });
+const statusLabels = {
+  completed: 'ĐÃ CHECK-OUT',
+  not_checked_in: 'CHƯA CHECK-IN',
+  working: 'ĐÃ CHECK-IN',
+} as const;
+
 export default function OverviewScreen() {
+  const { dashboard, isLoading, profile } = useEmployeeData();
+  const monthlyStats = dashboard ? [
+    { label: 'Ngày công', value: numberFormatter.format(dashboard.monthlyStats.workingDays), detail: `/ ${dashboard.monthlyStats.targetWorkingDays}` },
+    { label: 'Đi muộn', value: numberFormatter.format(dashboard.monthlyStats.lateCount), detail: 'lần' },
+    { label: 'OT', value: numberFormatter.format(dashboard.monthlyStats.overtimeHours), detail: 'giờ' },
+  ] : [
+    { label: 'Ngày công', value: '--', detail: '/ --' },
+    { label: 'Đi muộn', value: '--', detail: 'lần' },
+    { label: 'OT', value: '--', detail: 'giờ' },
+  ];
+  const progress = dashboard
+    ? getWorkProgress(dashboard.workedMinutes, dashboard.shift.startTime, dashboard.shift.endTime)
+    : 0;
+
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
-          title={`Chào buổi sáng, ${employee.preferredName}`}
-          subtitle={today.label}
-          right={<UserAvatar initials={employee.initials} />}
+          title={`Chào buổi sáng, ${getPreferredName(profile?.name)}`}
+          subtitle={dashboard ? formatDashboardDate(dashboard.date) : isLoading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu'}
+          right={<UserAvatar initials={getInitials(profile?.name)} />}
         />
 
         <View style={styles.heroCard}>
           <View style={styles.heroTop}>
             <Text style={styles.eyebrow}>TRẠNG THÁI HÔM NAY</Text>
-            <View style={styles.statusChip}><Text style={styles.statusText}>{today.status.toUpperCase()}</Text></View>
+            <View style={styles.statusChip}>
+              <Text style={styles.statusText}>{statusLabels[dashboard?.attendanceStatus ?? 'not_checked_in']}</Text>
+            </View>
           </View>
           <View style={styles.heroBody}>
             <View>
-              <Text style={styles.checkIn}>{today.checkIn}</Text>
+              <Text style={styles.checkIn}>{formatClock(dashboard?.checkInAt)}</Text>
               <Text style={styles.heroLabel}>Giờ vào ca</Text>
-              <Text style={styles.workTime}>{today.workTime}</Text>
+              <Text style={styles.workTime}>{formatWorkedMinutes(dashboard?.workedMinutes ?? 0)}</Text>
               <Text style={styles.heroLabel}>Thời gian làm việc</Text>
             </View>
-            <ProgressRing progress={today.progress} />
+            <ProgressRing progress={progress} />
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Tổng quan tháng 7</Text>
+        <Text style={styles.sectionTitle}>Tổng quan tháng {dashboard?.date.slice(5, 7).replace(/^0/, '') ?? '--'}</Text>
         <View style={styles.stats}>
           {monthlyStats.map((item) => (
             <AppCard key={item.label} style={styles.statCard}>
@@ -71,6 +96,28 @@ export default function OverviewScreen() {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+function formatDashboardDate(value: string) {
+  const label = dateFormatter.format(new Date(`${value}T12:00:00`));
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function formatClock(value?: string | null) {
+  if (!value) return '--:--';
+  const date = new Date(value);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function formatWorkedMinutes(minutes: number) {
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')} giờ ${String(minutes % 60).padStart(2, '0')} phút`;
+}
+
+function getWorkProgress(workedMinutes: number, startTime: string, endTime: string) {
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
+  const shiftMinutes = Math.max(1, endHour * 60 + endMinute - startHour * 60 - startMinute);
+  return Math.min(100, Math.round((workedMinutes / shiftMinutes) * 100));
 }
 
 function ProgressRing({ progress }: { progress: number }) {

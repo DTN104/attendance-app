@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { EmployeeDataProvider } from '@/context/EmployeeDataContext';
 import { RequestsProvider } from '@/context/RequestsContext';
 import { colors } from '@/theme/tokens';
 
@@ -14,12 +15,14 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RequestsProvider>
-        <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: colors.background } }}>
-          <AppNavigator />
-          <StatusBar style="dark" />
-        </ThemeProvider>
-      </RequestsProvider>
+      <EmployeeDataProvider>
+        <RequestsProvider>
+          <ThemeProvider value={{ ...DefaultTheme, colors: { ...DefaultTheme.colors, background: colors.background } }}>
+            <AppNavigator />
+            <StatusBar style="dark" />
+          </ThemeProvider>
+        </RequestsProvider>
+      </EmployeeDataProvider>
     </AuthProvider>
   );
 }
