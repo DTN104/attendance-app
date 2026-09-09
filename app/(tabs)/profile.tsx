@@ -1,9 +1,11 @@
+import { router } from 'expo-router';
 import { Bell, ChevronRight, CircleHelp, LogOut, ShieldCheck, UserRound } from 'lucide-react-native';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppCard } from '@/components/ui/AppCard';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useAuth } from '@/context/AuthContext';
 import { useEmployeeData } from '@/context/EmployeeDataContext';
@@ -50,15 +52,29 @@ export default function ProfileScreen() {
         <AppCard style={styles.menuCard}>
           {settings.map((item, index) => {
             const Icon = menuIcons[item.id];
+            const isPending = item.status === 'pending';
             return (
-              <View key={item.id} style={[styles.menuItem, index > 0 && styles.border]}>
-                <Icon color={colors.text} size={22} />
+              <Pressable
+                accessibilityHint={isPending ? 'Tính năng đang được phát triển' : undefined}
+                accessibilityRole="button"
+                accessibilityState={{ disabled: isPending }}
+                disabled={isPending}
+                key={item.id}
+                onPress={() => item.route && router.push(item.route)}
+                style={({ pressed }) => [
+                  styles.menuItem,
+                  index > 0 && styles.border,
+                  pressed && styles.pressed,
+                ]}>
+                <Icon color={isPending ? colors.textPlaceholder : colors.text} size={22} />
                 <View style={styles.menuCopy}>
-                  <Text style={styles.menuLabel}>{item.label}</Text>
+                  <Text style={[styles.menuLabel, isPending && styles.menuLabelPending]}>{item.label}</Text>
                   {item.description ? <Text style={styles.menuDescription}>{item.description}</Text> : null}
                 </View>
-                <ChevronRight color={colors.textSecondary} size={19} />
-              </View>
+                {isPending
+                  ? <StatusBadge label="Đang triển khai" variant="neutral" />
+                  : <ChevronRight color={colors.textSecondary} size={19} />}
+              </Pressable>
             );
           })}
         </AppCard>
@@ -88,7 +104,8 @@ const styles = StyleSheet.create({
   detailValue: { color: colors.text, fontSize: typography.sizes.body, fontWeight: typography.weights.semibold },
   sectionTitle: { color: colors.text, fontSize: typography.sizes.sectionTitle, fontWeight: typography.weights.bold },
   menuCard: { paddingVertical: 0 },
-  menuItem: { alignItems: 'center', flexDirection: 'row', gap: spacing.lg, minHeight: 58 },
+  menuItem: { alignItems: 'center', flexDirection: 'row', gap: spacing.lg, minHeight: 64, paddingVertical: spacing.sm },
+  menuLabelPending: { color: colors.textSecondary },
   menuCopy: { flex: 1 },
   menuLabel: { color: colors.text, fontSize: typography.sizes.label, fontWeight: typography.weights.medium },
   logoutText: { color: colors.danger },

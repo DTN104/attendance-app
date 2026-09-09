@@ -42,6 +42,7 @@ function AppNavigator() {
         <Stack.Screen name="leave-request" />
         <Stack.Screen name="modal" />
         <Stack.Screen name="overtime-request" />
+        <Stack.Screen name="profile-detail" />
         <Stack.Screen name="request-detail" />
         <Stack.Screen
           name="request-types"
